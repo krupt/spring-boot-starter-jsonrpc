@@ -11,34 +11,22 @@ group = "com.github.krupt"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
-val developmentOnly by configurations.creating
-
-configurations {
-	runtimeClasspath {
-		extendsFrom(developmentOnly)
-	}
-	compileOnly {
-		extendsFrom(annotationProcessor.orNull)
-	}
-}
-
 repositories {
 	mavenCentral()
 }
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
+//	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	compileOnly("org.projectlombok:lombok")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	annotationProcessor("org.projectlombok:lombok")
+
+	implementation("io.springfox:springfox-swagger2:2.9.2")
+	implementation("io.springfox:springfox-swagger-ui:2.9.2")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.projectreactor:reactor-test")
-	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+//	testImplementation("io.projectreactor:reactor-test")
 }
 
 tasks.withType<KotlinCompile> {
