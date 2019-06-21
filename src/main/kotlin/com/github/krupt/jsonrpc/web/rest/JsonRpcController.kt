@@ -8,6 +8,7 @@ import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.jsonrpc.exception.JsonRpcException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -40,10 +41,10 @@ class JsonRpcController(
             }
 
     @PostMapping("\${spring.jsonrpc.path}")
-    fun handle(@RequestBody request: JsonRpcRequest): ResponseEntity<JsonRpcResponse?> {
+    fun handle(@RequestBody @Validated request: JsonRpcRequest): ResponseEntity<JsonRpcResponse?> {
+        var error = JsonRpcError()
+        var result: Any? = null
         methods[request.method]?.let {
-            var error: JsonRpcError? = null
-            var result: Any? = null
             try {
                 val params = objectMapper.convertValue(request.params, it.inputType)
                 try {
@@ -57,22 +58,29 @@ class JsonRpcController(
                         e
                     }
                     error = if (exception is JsonRpcException) {
-                        JsonRpcError(exception.code, exception.data)
+                        JsonRpcError(exception.code, exception.message, exception.data)
                     } else {
                         log.error("Unhandled exception", exception)
-                        JsonRpcError("unhandled_exception")
+                        JsonRpcError(JsonRpcError.INTERNAL_ERROR, "unhandled_exception", exception.toString())
                     }
                 }
             } catch (e: Exception) {
                 log.error("Parse error", e)
-                error = JsonRpcError("bad_request")
+                error = JsonRpcError(JsonRpcError.INVALID_REQUEST, "invalid_request", e.toString())
             }
+        } ?: run {
+            error = JsonRpcError(JsonRpcError.METHOD_NOT_FOUND, "method_not_found")
+        }
 
-            return request.id?.let { id ->
-                ResponseEntity.ok(JsonRpcResponse(id, result, error))
-            } ?: ResponseEntity.ok().build()
-        } ?: throw IllegalArgumentException()
+        return request.id?.let { id ->
+            ResponseEntity.ok(JsonRpcResponse(id, result, error))
+        } ?: ResponseEntity.ok().build()
     }
+
+/*@ExceptionHandler
+fun handleJsonParseExceptions() {
+
+}*/
 }
 
 data class MethodInvocation(
