@@ -1,1 +1,3 @@
-Implementation of https://www.jsonrpc.org/specification for Spring Boot include integration with Swagger
+# Implementation of https://www.jsonrpc.org/specification for Spring Boot includes integration with Swagger with several limitations:
+- Allows only one any object as params
+- Batch requests not done yet
