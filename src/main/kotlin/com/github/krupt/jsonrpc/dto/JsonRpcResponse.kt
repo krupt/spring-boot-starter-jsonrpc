@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class JsonRpcResponse(
         val id: Any,
         val result: Any? = null,
-        val error: JsonRpcError,
+        val error: JsonRpcError? = null,
         @JsonProperty("jsonrpc")
         val jsonRpc: String = "2.0"
 )

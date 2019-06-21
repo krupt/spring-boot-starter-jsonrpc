@@ -42,7 +42,7 @@ class JsonRpcController(
 
     @PostMapping("\${spring.jsonrpc.path}")
     fun handle(@RequestBody @Validated request: JsonRpcRequest): ResponseEntity<JsonRpcResponse?> {
-        var error = JsonRpcError()
+        var error: JsonRpcError? = null
         var result: Any? = null
         methods[request.method]?.let {
             try {
