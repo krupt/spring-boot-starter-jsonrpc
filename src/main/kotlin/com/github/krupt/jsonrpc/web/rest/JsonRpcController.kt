@@ -1,6 +1,8 @@
 package com.github.krupt.jsonrpc.web.rest
 
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.github.krupt.jsonrpc.JsonRpcMethodFactory
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
@@ -8,17 +10,23 @@ import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.jsonrpc.exception.JsonRpcException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.Validator
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 class JsonRpcController(
         jsonRpcMethodConfiguration: JsonRpcMethodFactory,
-        private val objectMapper: ObjectMapper
+        private val objectMapper: ObjectMapper,
+        private val validator: Validator
 ) {
 
     companion object {
@@ -28,7 +36,7 @@ class JsonRpcController(
     @Suppress("UNCHECKED_CAST")
     private val methods =
             jsonRpcMethodConfiguration.methods.mapValues {
-                val (_, method) = it.value
+                val (_, instance, method) = it.value
 
                 // For best performance
                 method.isAccessible = true
@@ -36,40 +44,49 @@ class JsonRpcController(
                 MethodInvocation(
                         method.parameters[0].type as Class<Any>,
                         method,
-                        it.value
+                        instance
                 )
             }
 
     @PostMapping("\${spring.jsonrpc.path}")
-    fun handle(@RequestBody @Validated request: JsonRpcRequest): ResponseEntity<JsonRpcResponse?> {
+    fun handle(@RequestBody @Validated request: JsonRpcRequest<Map<String, Any?>>): ResponseEntity<JsonRpcResponse<Any>?> {
         var error: JsonRpcError? = null
         var result: Any? = null
         methods[request.method]?.let {
             try {
                 val params = objectMapper.convertValue(request.params, it.inputType)
-                try {
-                    log.debug("Request: {}", params)
-                    result = it.invoke(params)
-                    log.debug("Result: {}", result)
-                } catch (e: Exception) {
-                    val exception = if (e is InvocationTargetException) {
-                        e.cause
-                    } else {
-                        e
+                if (params != null) {
+                    try {
+                        log.debug("Request: {}", params)
+                        /*
+                        TODO validate params
+                        if (validator.supports(it.inputType)) {
+                            validator.validate(params, )
+                        }
+                        */
+                        result = it.invoke(params)
+                        log.debug("Result: {}", result)
+                    } catch (e: Exception) {
+                        val exception = if (e is InvocationTargetException) {
+                            e.cause
+                        } else {
+                            e
+                        }
+                        error = if (exception is JsonRpcException) {
+                            JsonRpcError(exception.code, exception.message, exception.data)
+                        } else {
+                            log.error("Unhandled exception", exception)
+                            JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
+                        }
                     }
-                    error = if (exception is JsonRpcException) {
-                        JsonRpcError(exception.code, exception.message, exception.data)
-                    } else {
-                        log.error("Unhandled exception", exception)
-                        JsonRpcError(JsonRpcError.INTERNAL_ERROR, "unhandled_exception", exception.toString())
-                    }
+                } else {
+                    error = JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, "Params can't be null")
                 }
             } catch (e: Exception) {
-                log.error("Parse error", e)
-                error = JsonRpcError(JsonRpcError.INVALID_REQUEST, "invalid_request", e.toString())
+                error = JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, e.toString())
             }
         } ?: run {
-            error = JsonRpcError(JsonRpcError.METHOD_NOT_FOUND, "method_not_found")
+            error = JsonRpcError(JsonRpcError.METHOD_NOT_FOUND, JsonRpcError.METHOD_NOT_FOUND_MESSAGE)
         }
 
         return request.id?.let { id ->
@@ -77,10 +94,49 @@ class JsonRpcController(
         } ?: ResponseEntity.ok().build()
     }
 
-/*@ExceptionHandler
-fun handleJsonParseExceptions() {
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleJsonParseException(
+            exception: HttpMessageNotReadableException,
+            request: HttpServletRequest
+    ): JsonRpcResponse<Void> =
+            when (val cause = exception.cause) {
+                is JsonParseException -> JsonRpcResponse(
+                        error = JsonRpcError(
+                                JsonRpcError.PARSE_ERROR,
+                                JsonRpcError.PARSE_ERROR_MESSAGE
+                        )
+                )
+                is MissingKotlinParameterException -> {
+                    JsonRpcResponse(
+                            // TODO extract and pass here id from request
+                            error = JsonRpcError(
+                                    JsonRpcError.INVALID_REQUEST,
+                                    JsonRpcError.PARSE_ERROR_MESSAGE,
+                                    cause.msg
+                            )
+                    )
+                }
+                else -> JsonRpcResponse(
+                        error = JsonRpcError(
+                                JsonRpcError.INTERNAL_ERROR,
+                                "Internal error"
+                        )
+                )
+            }
 
-}*/
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(exception: MethodArgumentNotValidException) =
+            JsonRpcResponse<Void>(
+                    id = (exception.bindingResult.target as JsonRpcRequest<*>).id ?: 1,
+                    error = JsonRpcError(
+                            JsonRpcError.INVALID_REQUEST,
+                            "Invalid request",
+                            exception.bindingResult.fieldErrors
+                                    .map {
+                                        it.toString()
+                                    }
+                    )
+            )
 }
 
 data class MethodInvocation(

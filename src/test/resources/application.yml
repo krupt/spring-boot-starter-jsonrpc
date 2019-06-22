@@ -1,0 +1,5 @@
+spring.jsonrpc:
+  path: testApi
+  basePackage: com.github.krupt.test
+
+logging.level.root: DEBUG

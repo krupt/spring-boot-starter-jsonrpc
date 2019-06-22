@@ -4,6 +4,7 @@ import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.stereotype.Component
 import com.github.krupt.jsonrpc.annotation.JsonRpcService
 import com.github.krupt.jsonrpc.annotation.NoJsonRpcMethod
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
 @Component
@@ -22,7 +23,13 @@ class JsonRpcMethodFactory(
                                             && method.declaringClass != Object::class.java
                                             && !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
                                 }.map { method ->
-                                    "${it.key}.${method.name}" to (it.key to method)
+                                    "${it.key}.${method.name}" to JsonRpcMethodDefinition(it.key, it.value, method)
                                 }
                     }.flatten().toMap()
 }
+
+data class JsonRpcMethodDefinition(
+        val beanName: String,
+        val beanInstance: Any,
+        val method: Method
+)
