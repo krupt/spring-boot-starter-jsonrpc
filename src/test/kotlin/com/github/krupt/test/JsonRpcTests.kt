@@ -18,7 +18,7 @@ import org.springframework.boot.test.web.client.postForObject
 import org.springframework.boot.web.server.LocalServerPort
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-internal class SpringBootStarterJsonRpcTests {
+internal class JsonRpcTests {
 
     @MockkBean(relaxed = true)
     private lateinit var testRunnable: Runnable

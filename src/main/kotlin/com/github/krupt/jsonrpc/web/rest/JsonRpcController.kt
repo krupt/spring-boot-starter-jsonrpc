@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import javax.servlet.http.HttpServletRequest
 
 @RestController
 class JsonRpcController(
@@ -96,8 +95,7 @@ class JsonRpcController(
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleJsonParseException(
-            exception: HttpMessageNotReadableException,
-            request: HttpServletRequest
+            exception: HttpMessageNotReadableException
     ): JsonRpcResponse<Void> =
             when (val cause = exception.cause) {
                 is JsonParseException -> JsonRpcResponse(
@@ -106,16 +104,14 @@ class JsonRpcController(
                                 JsonRpcError.PARSE_ERROR_MESSAGE
                         )
                 )
-                is MissingKotlinParameterException -> {
-                    JsonRpcResponse(
-                            // TODO extract and pass here id from request
-                            error = JsonRpcError(
-                                    JsonRpcError.INVALID_REQUEST,
-                                    JsonRpcError.PARSE_ERROR_MESSAGE,
-                                    cause.msg
-                            )
-                    )
-                }
+                is MissingKotlinParameterException -> JsonRpcResponse(
+                        // TODO extract and pass here id from request
+                        error = JsonRpcError(
+                                JsonRpcError.INVALID_REQUEST,
+                                JsonRpcError.PARSE_ERROR_MESSAGE,
+                                cause.msg
+                        )
+                )
                 else -> JsonRpcResponse(
                         error = JsonRpcError(
                                 JsonRpcError.INTERNAL_ERROR,

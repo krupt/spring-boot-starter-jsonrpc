@@ -21,7 +21,7 @@ import org.springframework.http.RequestEntity
 import java.net.URI
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-internal class SpringBootStarterJsonRpcValidationTests {
+internal class JsonRpcValidationTests {
 
     @MockkBean(relaxed = true)
     private lateinit var testRunnable: Runnable
@@ -91,6 +91,7 @@ internal class SpringBootStarterJsonRpcValidationTests {
                 { response.error!!.code shouldBe JsonRpcError.INVALID_REQUEST },
                 { response.error!!.message shouldBe "Invalid request" },
                 {
+                    @Suppress("UNCHECKED_CAST")
                     val validationErrors = (response.error!!.data as List<String>)
                             .map {
                                 it.substringAfter("on field '").substringBefore('\'') to it
