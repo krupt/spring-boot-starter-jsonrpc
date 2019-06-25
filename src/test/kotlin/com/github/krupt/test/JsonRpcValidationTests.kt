@@ -56,7 +56,8 @@ internal class JsonRpcValidationTests {
         )!!
 
         assertAll(
-                { response.id shouldBe "234" },
+                { response.id shouldBe 1 },
+//                { response.id shouldBe "234" },
                 { response.result shouldBe null },
                 { response.error shouldNotBe null },
                 { response.error!!.code shouldBe JsonRpcError.INVALID_REQUEST },

@@ -45,7 +45,7 @@ class JsonRpcRequestHandler(
     override fun getPatternsCondition() =
             PatternsRequestCondition("/$basePath/json-rpc/$methodName")
 
-    override fun groupName() = beanName
+    override fun groupName() = "[JSON-RPC] $beanName"
 
     override fun getName(): String = method.name
 

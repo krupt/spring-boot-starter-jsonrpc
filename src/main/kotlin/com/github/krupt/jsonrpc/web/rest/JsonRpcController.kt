@@ -8,6 +8,7 @@ import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.jsonrpc.exception.JsonRpcException
+import io.swagger.annotations.ApiOperation
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -48,6 +49,10 @@ class JsonRpcController(
             }
 
     @PostMapping("\${spring.jsonrpc.path}")
+    @ApiOperation(
+            "The endpoint that handles all JSON-RPC requests",
+            notes = """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>"""
+    )
     fun handle(@RequestBody @Validated request: JsonRpcRequest<Map<String, Any?>>): ResponseEntity<JsonRpcResponse<Any>?> {
         var error: JsonRpcError? = null
         var result: Any? = null
@@ -108,7 +113,7 @@ class JsonRpcController(
                         // TODO extract and pass here id from request
                         error = JsonRpcError(
                                 JsonRpcError.INVALID_REQUEST,
-                                JsonRpcError.PARSE_ERROR_MESSAGE,
+                                JsonRpcError.INVALID_REQUEST_MESSAGE,
                                 cause.msg
                         )
                 )

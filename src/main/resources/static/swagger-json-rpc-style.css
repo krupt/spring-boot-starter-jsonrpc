@@ -1,0 +1,13 @@
+.json-rpc {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 80px;
+    padding: 6px 10px;
+    text-align: center;
+    border-radius: 3px;
+    background: #0071e0;
+    text-shadow: 0 1px 0 rgba(0,0,0,.1);
+    font-family: Titillium Web,sans-serif;
+    color: #fff;
+    margin-right: 10px;
+}

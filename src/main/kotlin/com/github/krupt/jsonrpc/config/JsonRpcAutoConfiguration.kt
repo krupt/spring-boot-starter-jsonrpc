@@ -63,8 +63,7 @@ class JsonRpcAutoConfiguration {
                 ).build()
 
         @Bean
-        @ConditionalOnMissingBean
-        fun swaggerUiJsonRpcExtensionAuto() = object : WebMvcConfigurer {
+        fun swaggerUiJsonRpcWebMvcConfigurer() = object : WebMvcConfigurer {
             override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
                 registry.addResourceHandler("/swagger-ui.html")
                         .addResourceLocations("classpath:/static/swagger-ui.html")
@@ -73,20 +72,5 @@ class JsonRpcAutoConfiguration {
                         .addResourceLocations("classpath:/static/")
             }
         }
-
-        @Bean
-        @ConditionalOnBean
-        fun swaggerUiJsonRpcExtension(webMvcConfigurer: WebMvcConfigurer) =
-                object : WebMvcConfigurer by webMvcConfigurer {
-                    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-                        registry.addResourceHandler("/swagger-ui.html")
-                                .addResourceLocations("classpath:/static/swagger-ui.html")
-
-                        registry.addResourceHandler("/static/**")
-                                .addResourceLocations("classpath:/static/")
-
-                        super.addResourceHandlers(registry)
-                    }
-                }
     }
 }
