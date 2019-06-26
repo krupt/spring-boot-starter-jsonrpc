@@ -8,6 +8,7 @@ import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.test.dto.TestRequest
 import com.github.krupt.test.dto.TestResponse
+import com.github.krupt.test.model.TestUser
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.postForObject
 import org.springframework.boot.web.server.LocalServerPort
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class JsonRpcTests {
@@ -47,6 +49,22 @@ internal class JsonRpcTests {
         ) shouldBe JsonRpcResponse(
                 "12345",
                 TestResponse(1567)
+        )
+    }
+
+    @Test
+    fun `application calls simple method with simple param and returns result`() {
+        val testId = UUID.randomUUID()
+        call<TestUser>(
+                JsonRpcRequest(
+                        "12345U",
+                        "testService.get",
+                        testId,
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                "12345U",
+                TestUser(testId)
         )
     }
 

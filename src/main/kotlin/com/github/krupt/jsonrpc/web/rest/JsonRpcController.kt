@@ -53,7 +53,7 @@ class JsonRpcController(
             "The endpoint that handles all JSON-RPC requests",
             notes = """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>"""
     )
-    fun handle(@RequestBody @Validated request: JsonRpcRequest<Map<String, Any?>>): ResponseEntity<JsonRpcResponse<Any>?> {
+    fun handle(@RequestBody @Validated request: JsonRpcRequest<Any>): ResponseEntity<JsonRpcResponse<Any>?> {
         var error: JsonRpcError? = null
         var result: Any? = null
         methods[request.method]?.let {

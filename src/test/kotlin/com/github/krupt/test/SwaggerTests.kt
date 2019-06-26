@@ -100,7 +100,7 @@ class SwaggerTests {
                         "name" to "request",
                         "description" to "request",
                         "required" to true,
-                        "schema" to mapOf("\$ref" to "#/definitions/JsonRpcRequest«Map«string,object»»")
+                        "schema" to mapOf("\$ref" to "#/definitions/JsonRpcRequest«object»")
                 )),
                 "responses" to mapOf(
                         "200" to mapOf(
