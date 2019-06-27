@@ -37,4 +37,6 @@ class TestService(
     fun exception(request: TestRequest) {
         throw IllegalStateException("Invalid service state")
     }
+
+    fun list(count: Int): List<TestUser> = emptyList()
 }

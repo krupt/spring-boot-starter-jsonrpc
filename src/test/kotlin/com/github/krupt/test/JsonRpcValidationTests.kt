@@ -7,6 +7,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -174,6 +175,7 @@ internal class JsonRpcValidationTests {
     }
 
     @Test
+    @Disabled
     fun `request with invalid params with invalid field fails`() {
         call(
                 """

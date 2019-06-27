@@ -84,6 +84,73 @@ class SwaggerTests {
     }
 
     @Test
+    fun `Api documentation for simple method with simple parameter`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.get"]!! as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+                "tags" to listOf("[JSON-RPC] testService"),
+                "summary" to "get",
+                "operationId" to "getUsingPOST",
+                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "parameters" to listOf(mapOf(
+                        "in" to "body",
+                        "name" to "userId",
+                        "description" to "userId",
+                        "required" to true,
+                        "schema" to mapOf(
+                                "type" to "string",
+                                "format" to "uuid"
+                        )
+                )),
+                "responses" to mapOf(
+                        "200" to mapOf(
+                                "description" to "OK",
+                                "schema" to mapOf("\$ref" to "#/definitions/TestUser")
+                        )
+                ),
+                "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `Api documentation for simple method with array output`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.list"]!! as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+                "tags" to listOf("[JSON-RPC] testService"),
+                "summary" to "list",
+                "operationId" to "listUsingPOST",
+                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "parameters" to listOf(mapOf(
+                        "in" to "body",
+                        "name" to "count",
+                        "description" to "count",
+                        "required" to true,
+                        "schema" to mapOf(
+                                "type" to "integer",
+                                "format" to "int32"
+                        )
+                )),
+                "responses" to mapOf(
+                        "200" to mapOf(
+                                "description" to "OK",
+                                "schema" to mapOf(
+                                        "type" to "array",
+                                        "items" to mapOf(
+                                                "\$ref" to "#/definitions/TestUser"
+                                        )
+                                )
+                        )
+                ),
+                "deprecated" to false
+        )
+    }
+
+    @Test
     fun `Api documentation for main method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}"]!! as Map<String, Any?>

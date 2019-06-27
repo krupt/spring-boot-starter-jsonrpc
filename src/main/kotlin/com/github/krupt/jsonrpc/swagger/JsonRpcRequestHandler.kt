@@ -81,7 +81,7 @@ class JsonRpcRequestHandler(
     }
 
     override fun getReturnType(): ResolvedType =
-            typeResolver.resolve(method.returnType)
+            typeResolver.resolve(method.genericReturnType)
 
     override fun <T : Annotation> findControllerAnnotation(annotation: Class<T>): Optional<T> =
             Optional.fromNullable(AnnotationUtils.findAnnotation(method.declaringClass, annotation))
