@@ -3,7 +3,6 @@ package com.github.krupt.test
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.matchers.maps.shouldContainExactly
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -12,8 +11,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForObject
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.service.ApiInfo
 import springfox.documentation.service.Contact
@@ -56,15 +53,6 @@ internal class AutoConfigurationTests {
                         .useDefaultResponseMessages(false)
                         .select()
                         .paths(PathSelectors.any())
-
-        @Bean
-        fun webMvcConfigurer() = object : WebMvcConfigurer {
-            override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-
-                registry.addResourceHandler("/assets/**")
-                        .addResourceLocations("classpath:/assets/")
-            }
-        }
     }
 
     @Test
@@ -91,18 +79,6 @@ internal class AutoConfigurationTests {
         restTemplate.getForObject<String>(
                 "http://localhost:$port/swagger-ui.html"
         )!! shouldContain
-                """<script src="static/swagger-json-rpc-plugin.js"> </script>"""
-    }
-
-    @Test
-    fun `Application starts and returns custom static resources`() {
-        restTemplate.getForObject<String>(
-                "http://localhost:$port/assets/test.js"
-        )!! shouldBe """
-            window.onload = function() {
-                console.log("Test");
-            }
-            
-        """.trimIndent()
+                """<script src="swagger-json-rpc-plugin.js"> </script>"""
     }
 }

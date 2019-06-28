@@ -9,6 +9,6 @@ class JsonRpcProperties {
         const val JSON_RPC_BASE_PACKAGE = "com.github.krupt.jsonrpc"
     }
 
-    lateinit var path: String
+    var path: String = ""
     var basePackage: String? = null
 }
