@@ -49,7 +49,24 @@ public class UserService {
 
 All the public methods with only one parameter are collected by JSON RPC Engine and can be accessed through HTTP API. If you want to hide beans' public methods, you need to mark the target method with `@NoJsonRpcMethod` annotation.
 
+---
+
+There are some Gradle projects that demonstrate typical use cases with and features available in the Spring Boot JSON-RPC Starter:
+* [Kotlin](https://github.com/krupt/spring-boot-starter-jsonrpc-example)
+* [Java](https://github.com/krupt/spring-boot-starter-jsonrpc-example-java)
+
+In these projects Swagger's documentation looks like this:
+
+![Swagger's documentation](https://github.com/krupt/spring-boot-starter-jsonrpc/raw/master/images/methods.png)
+
+![Information of JSON-RPC method](https://github.com/krupt/spring-boot-starter-jsonrpc/raw/master/images/method_params.png)
+
+![Trying JSON-RPC method](https://github.com/krupt/spring-boot-starter-jsonrpc/raw/master/images/method_trying.png)
+
+---
+
 ## Road map ##
-* Add validation for method's params
+* Add validation for methods' params
 * Add library for testing that includes tests' results into Swagger as a set of examples of requests and responses
 * Add support for Spring Web Flux
+* Better Spring integration (like Spring WebMVC)
