@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.github.krupt"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {

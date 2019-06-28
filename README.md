@@ -20,7 +20,7 @@ Download the jar through Maven:
 <dependency>
   <groupId>com.github.krupt</groupId>
   <artifactId>spring-boot-starter-jsonrpc</artifactId>
-  <version>${version}</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
