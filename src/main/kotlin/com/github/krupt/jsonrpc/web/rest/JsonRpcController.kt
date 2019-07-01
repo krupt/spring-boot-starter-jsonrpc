@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.BindException
 import org.springframework.validation.Validator
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -60,27 +61,35 @@ class JsonRpcController(
             try {
                 val params = objectMapper.convertValue(request.params, it.inputType)
                 if (params != null) {
-                    try {
-                        log.debug("Request: {}", params)
-                        /*
-                        TODO validate params
-                        if (validator.supports(it.inputType)) {
-                            validator.validate(params, )
-                        }
-                        */
-                        result = it.invoke(params)
-                        log.debug("Result: {}", result)
-                    } catch (e: Exception) {
-                        val exception = if (e is InvocationTargetException) {
-                            e.cause
-                        } else {
-                            e
-                        }
-                        error = if (exception is JsonRpcException) {
-                            JsonRpcError(exception.code, exception.message, exception.data)
-                        } else {
-                            log.error("Unhandled exception", exception)
-                            JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
+                    // Validate
+                    val bindException = BindException(params, it.inputType.simpleName)
+                    validator.validate(params, bindException)
+                    if (bindException.hasErrors()) {
+                        error = JsonRpcError(
+                                JsonRpcError.INVALID_PARAMS,
+                                JsonRpcError.INVALID_PARAMS_MESSAGE,
+                                bindException.bindingResult.fieldErrors
+                                        .map { fieldError ->
+                                            fieldError.toString()
+                                        }
+                        )
+                    } else {
+                        try {
+                            log.debug("Request: {}", params)
+                            result = it.invoke(params)
+                            log.debug("Result: {}", result)
+                        } catch (e: Exception) {
+                            val exception = if (e is InvocationTargetException) {
+                                e.cause
+                            } else {
+                                e
+                            }
+                            error = if (exception is JsonRpcException) {
+                                JsonRpcError(exception.code, exception.message, exception.data)
+                            } else {
+                                log.error("Unhandled exception", exception)
+                                JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
+                            }
                         }
                     }
                 } else {

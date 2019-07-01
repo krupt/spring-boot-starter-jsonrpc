@@ -66,7 +66,6 @@ In these projects Swagger's documentation looks like this:
 ---
 
 ## Road map ##
-* Add validation for methods' params
 * Add library for testing that includes tests' results into Swagger as a set of examples of requests and responses
 * Add support for Spring Web Flux
 * Better Spring integration (like Spring WebMVC)

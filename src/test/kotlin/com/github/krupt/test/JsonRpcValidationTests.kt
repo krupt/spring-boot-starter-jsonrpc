@@ -7,7 +7,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -175,22 +174,37 @@ internal class JsonRpcValidationTests {
     }
 
     @Test
-    @Disabled
     fun `request with invalid params with invalid field fails`() {
-        call(
+        val response = call(
                 """
                     {
                         "method": "testService.process",
                         "params": {
                             "name": "   "
                         },
-                        "id": "567",
+                        "id": 567,
                         "jsonrpc": "2.0"
                     }
                 """.trimIndent()
-        ) shouldBe JsonRpcResponse(
-                id = "567",
-                error = JsonRpcError(JsonRpcError.INVALID_PARAMS, "Invalid method parameter(s)")
+        )!!
+
+        assertAll(
+                { response.id shouldBe 567 },
+                { response.result shouldBe null },
+                { response.error shouldNotBe null },
+                { response.error!!.code shouldBe JsonRpcError.INVALID_PARAMS },
+                { response.error!!.message shouldBe "Invalid method parameter(s)" },
+                {
+                    val errorMessages = response.error!!.data as List<String>
+                    errorMessages.size shouldBe 1
+                    val errorMessage = errorMessages[0]
+                    assertTrue(
+                            errorMessage.startsWith(
+                                    "Field error in object 'TestRequest' on field 'name': rejected value [   ]; codes [NotBlank"
+                            ),
+                            errorMessage
+                    )
+                }
         )
     }
 
