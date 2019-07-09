@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.3.40"
     kotlin("plugin.spring") version "1.3.40"
+    kotlin("kapt") version "1.3.40"
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
 
     id("org.jetbrains.dokka") version "0.9.18"
@@ -13,7 +14,7 @@ plugins {
 }
 
 group = "com.github.krupt"
-version = "0.2.0"
+version = "0.3.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {
@@ -33,7 +34,9 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-web")
 //	implementation("org.springframework.boot:spring-boot-starter-webflux")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     api("io.springfox:springfox-swagger2:2.9.2")
     api("io.springfox:springfox-swagger-ui:2.9.2")
