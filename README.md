@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.krupt/spring-boot-starter-jsonrpc.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.krupt/spring-boot-starter-jsonrpc)
+
 # Spring Boot Starter JSON-RPC
 The primary goal of the Spring Boot Starter JSON-RPC project is to make it easier to build Spring-powered applications that use [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification).
 
@@ -20,7 +22,7 @@ Download the jar through Maven:
 <dependency>
   <groupId>com.github.krupt</groupId>
   <artifactId>spring-boot-starter-jsonrpc</artifactId>
-  <version>0.3.0</version>
+  <version>${version}</version>
 </dependency>
 ```
 
