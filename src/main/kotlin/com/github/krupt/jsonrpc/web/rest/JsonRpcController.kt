@@ -49,7 +49,7 @@ class JsonRpcController(
                 )
             }
 
-    @PostMapping("\${spring.jsonrpc.path}")
+    @PostMapping("\${spring.jsonrpc.path:}")
     @ApiOperation(
             "The endpoint that handles all JSON-RPC requests",
             notes = """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>"""
