@@ -1,6 +1,6 @@
 window.onload = function() {
 
-    const jsonRpcRequestRegExp = /(.*)\/json-rpc\/(.*)/
+    const jsonRpcRequestRegExp = /(.*)\/json-rpc\/(.*)/;
     let requestId = 1;
 
     function jsonRpcRequestInterceptor(request) {
@@ -10,9 +10,10 @@ window.onload = function() {
             request.body = JSON.stringify({
                 id: requestId++,
                 method: match[2],
-                params: JSON.parse(request.body),
+                params: request.body ? JSON.parse(request.body) : null,
                 jsonrpc: '2.0'
             }, null, 2);
+            request.headers['Content-Type'] = 'application/json';
         }
 
         return request;
@@ -29,10 +30,10 @@ window.onload = function() {
                         return React.createElement('div', null,
                             React.createElement('span', {className: 'json-rpc'}, 'JSON-RPC'),
                             React.createElement(Original, jsonRpcProps)
-                        )
+                        );
                     }
 
-                    return React.createElement(Original, props)
+                    return React.createElement(Original, props);
                 }
             }
         }
@@ -57,4 +58,4 @@ window.onload = function() {
     });
 
     window.ui = ui;
-}
+};

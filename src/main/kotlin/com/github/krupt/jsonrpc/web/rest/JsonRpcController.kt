@@ -43,7 +43,7 @@ class JsonRpcController(
                 method.isAccessible = true
 
                 MethodInvocation(
-                        method.parameters[0].type as Class<Any>,
+                        method.parameters.firstOrNull()?.type as Class<Any>?,
                         method,
                         instance
                 )
@@ -57,14 +57,20 @@ class JsonRpcController(
     fun handle(@RequestBody @Validated request: JsonRpcRequest<Any>): ResponseEntity<JsonRpcResponse<Any>?> {
         var error: JsonRpcError? = null
         var result: Any? = null
-        methods[request.method]?.let {
+        methods[request.method]?.let { method ->
             try {
-                val params = objectMapper.convertValue(request.params, it.inputType)
-                if (params != null) {
+                if (request.params != null || method.inputType == null) {
+                    val params = request.params?.let {
+                        objectMapper.convertValue(it, method.inputType)
+                    }
                     // Validate
-                    val bindException = BindException(params, it.inputType.simpleName)
-                    validator.validate(params, bindException)
-                    if (bindException.hasErrors()) {
+                    val bindException = params?.let {
+                        BindException(params, method.inputType!!.simpleName)
+                    }
+                    bindException?.run {
+                        validator.validate(params, bindException)
+                    }
+                    if (bindException?.hasErrors() == true) {
                         error = JsonRpcError(
                                 JsonRpcError.INVALID_PARAMS,
                                 JsonRpcError.INVALID_PARAMS_MESSAGE,
@@ -76,7 +82,7 @@ class JsonRpcController(
                     } else {
                         try {
                             log.debug("Request: {}", params)
-                            result = it.invoke(params)
+                            result = method.invoke(params)
                             log.debug("Result: {}", result)
                         } catch (e: Exception) {
                             val exception = if (e is InvocationTargetException) {
@@ -150,10 +156,14 @@ class JsonRpcController(
 }
 
 data class MethodInvocation(
-        val inputType: Class<Any>,
+        val inputType: Class<Any>?,
         private val method: Method,
         private val instance: Any
 ) {
 
-    fun invoke(args: Any): Any? = method.invoke(instance, args)
+    fun invoke(args: Any?): Any? = if (inputType != null) {
+        method.invoke(instance, args)
+    } else {
+        method.invoke(instance)
+    }
 }

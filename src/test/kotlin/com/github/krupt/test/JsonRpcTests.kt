@@ -11,13 +11,14 @@ import com.github.krupt.test.dto.TestResponse
 import com.github.krupt.test.model.TestUser
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.postForObject
 import org.springframework.boot.web.server.LocalServerPort
-import java.util.UUID
+import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class JsonRpcTests {
@@ -81,6 +82,10 @@ internal class JsonRpcTests {
                 "9876",
                 null
         )
+
+        verify {
+            testRunnable.run()
+        }
     }
 
     @Test
@@ -92,17 +97,63 @@ internal class JsonRpcTests {
                         jsonRpc = "2.0"
                 )
         ) shouldBe null
+
+        verify {
+            testRunnable.run()
+        }
     }
 
     @Test
     fun `application calls async method without id and returns empty response`() {
         call<Any>(
                 JsonRpcRequest(
-                        method = "testService.process",
+                        method = "testService.processAsync",
                         params = TestRequest("krupt"),
                         jsonRpc = "2.0"
                 )
         ) shouldBe null
+
+        verify {
+            testRunnable.run()
+        }
+    }
+
+    @Test
+    fun `application calls method without parameter and returns empty response`() {
+        call<Any>(
+                JsonRpcRequest(
+                        "342423324",
+                        "testService.call",
+                        null,
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                "342423324",
+                null
+        )
+
+        verify {
+            testRunnable.run()
+        }
+    }
+
+    @Test
+    fun `application calls method with non-nullable parameter`() {
+        call<Any>(
+                JsonRpcRequest(
+                        123456798,
+                        "testService.process",
+                        null,
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                123456798,
+                error = JsonRpcError(
+                        JsonRpcError.INVALID_PARAMS,
+                        JsonRpcError.INVALID_PARAMS_MESSAGE,
+                        "Params can't be null"
+                )
+        )
     }
 
     @Test

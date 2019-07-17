@@ -151,6 +151,26 @@ class SwaggerTests {
     }
 
     @Test
+    fun `Api documentation for method without parameters`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.call"]!! as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+                "tags" to listOf("[JSON-RPC] testService"),
+                "summary" to "call",
+                "operationId" to "callUsingPOST",
+                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "responses" to mapOf(
+                        "200" to mapOf(
+                                "description" to "OK"
+                        )
+                ),
+                "deprecated" to false
+        )
+    }
+
+    @Test
     fun `Api documentation for main method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}"]!! as Map<String, Any?>

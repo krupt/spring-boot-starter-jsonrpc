@@ -70,14 +70,16 @@ class JsonRpcRequestHandler(
     )
 
     override fun getParameters(): List<ResolvedMethodParameter> {
-        val it = method.parameters.first()
+        val parameter = method.parameters.firstOrNull()
 
-        return listOf(ResolvedMethodParameter(
-                0,
-                it.name,
-                it.annotations.asList() + requestBodyAnnotation,
-                typeResolver.resolve(it.type)
-        ))
+        return parameter?.let {
+            listOf(ResolvedMethodParameter(
+                    0,
+                    it.name,
+                    it.annotations.asList() + requestBodyAnnotation,
+                    typeResolver.resolve(it.type)
+            ))
+        } ?: emptyList()
     }
 
     override fun getReturnType(): ResolvedType =

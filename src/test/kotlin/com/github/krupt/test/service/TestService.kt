@@ -16,6 +16,8 @@ class TestService(
     fun get(userId: UUID) = TestUser(userId)
 
     fun process(request: TestRequest): TestResponse {
+        testRunnable.run()
+
         return TestResponse(1567)
     }
 
@@ -23,12 +25,9 @@ class TestService(
         testRunnable.run()
     }
 
-    /*
-    TODO Allow methods without arguments
-
-    fun notificate() {
+    fun call() {
+        testRunnable.run()
     }
-    */
 
     fun jsonRpcException(request: TestRequest) {
         throw TestException(TestState("krupt"))

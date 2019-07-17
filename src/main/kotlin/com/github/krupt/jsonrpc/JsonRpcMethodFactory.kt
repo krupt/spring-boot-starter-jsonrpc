@@ -12,14 +12,14 @@ class JsonRpcMethodFactory(
         beanFactory: ListableBeanFactory
 ) {
 
-    // Map<methodName, Pair<beanName, method>>
+    // Map<methodName, jsonRpcMethodDefinition>
     val methods =
             beanFactory.getBeansWithAnnotation(JsonRpcService::class.java)
                     .map {
                         it.value::class.java.methods
                                 .filter { method ->
                                     Modifier.isPublic(method.modifiers)
-                                            && method.parameters.size == 1
+                                            && method.parameters.size <= 1
                                             && method.declaringClass != Object::class.java
                                             && !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
                                 }.map { method ->

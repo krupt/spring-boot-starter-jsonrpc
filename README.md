@@ -12,7 +12,7 @@ The primary goal of the Spring Boot Starter JSON-RPC project is to make it easie
 
 ## Restrictions ##
 * Works only for Spring Web (Servlet), doesn't work with Spring Web Flux
-* Allows only one object as params
+* Allows methods with one or none parameters
 * JSON-RPC's batch requests are not allowed
 
 ## Quick Start ##
