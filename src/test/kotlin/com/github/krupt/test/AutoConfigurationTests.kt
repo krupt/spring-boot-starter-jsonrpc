@@ -56,7 +56,7 @@ internal class AutoConfigurationTests {
     }
 
     @Test
-    fun `Application starts and returns custom swagger docket info`() {
+    fun `application starts and returns custom swagger docket info`() {
         val response = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         response["info"] as Map<String, Any?> shouldContainExactly mapOf(
                 "title" to "Test title",
@@ -75,7 +75,7 @@ internal class AutoConfigurationTests {
     }
 
     @Test
-    fun `Application starts and returns swagger page`() {
+    fun `application starts and returns swagger page`() {
         restTemplate.getForObject<String>(
                 "http://localhost:$port/swagger-ui.html"
         )!! shouldContain

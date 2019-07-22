@@ -8,6 +8,7 @@ import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.jsonrpc.exception.JsonRpcException
+import com.github.krupt.jsonrpc.exception.JsonRpcExceptionHandler
 import io.swagger.annotations.ApiOperation
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -26,6 +27,7 @@ import java.lang.reflect.Method
 @RestController
 class JsonRpcController(
         jsonRpcMethodConfiguration: JsonRpcMethodFactory,
+        private val exceptionHandler: JsonRpcExceptionHandler,
         private val objectMapper: ObjectMapper,
         private val validator: Validator
 ) {
@@ -81,21 +83,14 @@ class JsonRpcController(
                         )
                     } else {
                         try {
-                            log.debug("Request: {}", params)
                             result = method.invoke(params)
-                            log.debug("Result: {}", result)
-                        } catch (e: Exception) {
+                        } catch (e: Throwable) {
                             val exception = if (e is InvocationTargetException) {
-                                e.cause
+                                e.cause!!
                             } else {
                                 e
                             }
-                            error = if (exception is JsonRpcException) {
-                                JsonRpcError(exception.code, exception.message, exception.data)
-                            } else {
-                                log.error("Unhandled exception", exception)
-                                JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
-                            }
+                            error = exceptionHandler.handle(exception)
                         }
                     }
                 } else {

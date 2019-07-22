@@ -49,7 +49,9 @@ public class UserService {
 
 ```
 
-All the public methods with only one parameter are collected by JSON RPC Engine and can be accessed through HTTP API. If you want to hide beans' public methods, you need to mark the target method with `@NoJsonRpcMethod` annotation.
+All the public methods with one or none parameters are collected by JSON RPC Engine and can be accessed through HTTP API. If you want to hide beans' public methods, you need to mark the target method with `@NoJsonRpcMethod` annotation.
+
+If you want specific exception handling, add bean that implements com.github.krupt.jsonrpc.exception.JsonRpcExceptionHandler.
 
 ---
 
@@ -68,6 +70,5 @@ In these projects Swagger's documentation looks like this:
 ---
 
 ## Road map ##
-* Add library for testing that includes tests' results into Swagger as a set of examples of requests and responses
 * Add support for Spring Web Flux
 * Better Spring integration (like Spring WebMVC)

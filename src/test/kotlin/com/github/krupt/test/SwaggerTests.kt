@@ -29,7 +29,7 @@ class SwaggerTests {
     private lateinit var restTemplate: TestRestTemplate
 
     @Test
-    fun `Api documentation for simple method`() {
+    fun `api documentation for simple method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.process"]!! as Map<String, Any?>
 
@@ -57,7 +57,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation for async method`() {
+    fun `api documentation for async method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.processAsync"]!! as Map<String, Any?>
 
@@ -84,7 +84,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation for simple method with simple parameter`() {
+    fun `api documentation for simple method with simple parameter`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.get"]!! as Map<String, Any?>
 
@@ -115,7 +115,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation for simple method with array output`() {
+    fun `api documentation for simple method with array output`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.list"]!! as Map<String, Any?>
 
@@ -151,7 +151,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation for method without parameters`() {
+    fun `api documentation for method without parameters`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.call"]!! as Map<String, Any?>
 
@@ -171,7 +171,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation for main method`() {
+    fun `api documentation for main method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}"]!! as Map<String, Any?>
 
@@ -200,7 +200,7 @@ class SwaggerTests {
     }
 
     @Test
-    fun `Api documentation default info`() {
+    fun `api documentation default info`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         (apiDocs["info"]!! as Map<String, Any?>)
                 .shouldContain("title", "Api Documentation")
