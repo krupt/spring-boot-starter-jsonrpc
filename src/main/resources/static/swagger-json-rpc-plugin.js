@@ -1,16 +1,32 @@
 window.onload = function() {
 
-    const jsonRpcRequestRegExp = /(.*)\/json-rpc\/(.*)/;
+    const jsonRpcRequestRegExp = /(.*)\/json-rpc\/([^\?]+)(\?(.*))?/;
     let requestId = 1;
 
     function jsonRpcRequestInterceptor(request) {
+        console.log('request', request);
         const match = jsonRpcRequestRegExp.exec(request.url);
         if (match !== null) {
+            const requestBody = request.body ? JSON.parse(request.body) : null;
+            let params = null;
+            if (match[4]) {
+                params = match[4].split('=')[1];
+            }
+
+            if (params) {
+                if (requestBody) {
+                    params = [params];
+                    params.push(requestBody);
+                }
+            } else {
+                params = requestBody;
+            }
+
             request.url = match[1];
             request.body = JSON.stringify({
                 id: requestId++,
                 method: match[2],
-                params: request.body ? JSON.parse(request.body) : null,
+                params: params,
                 jsonrpc: '2.0'
             }, null, 2);
             request.headers['Content-Type'] = 'application/json';

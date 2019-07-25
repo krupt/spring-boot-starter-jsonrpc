@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.postForObject
 import org.springframework.boot.web.server.LocalServerPort
-import java.util.*
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class JsonRpcTests {
@@ -190,6 +190,29 @@ internal class JsonRpcTests {
                         JsonRpcError.INTERNAL_ERROR,
                         "Unhandled exception",
                         "java.lang.IllegalStateException: Invalid service state"
+                )
+        )
+    }
+
+    @Test
+    fun `application calls method with two parameters`() {
+        val testId = UUID.randomUUID()
+
+        call<TestUser>(
+                JsonRpcRequest(
+                        mapOf("id" to 54684568),
+                        "testService.update",
+                        listOf(
+                                testId,
+                                TestRequest("krupt")
+                        ),
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                mapOf("id" to 54684568),
+                TestUser(
+                        testId,
+                        "krupt"
                 )
         )
     }

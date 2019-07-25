@@ -38,4 +38,7 @@ class TestService(
     }
 
     fun list(count: Int): List<TestUser> = emptyList()
+
+    fun update(userId: UUID, request: TestRequest) =
+            TestUser(userId, request.name)
 }

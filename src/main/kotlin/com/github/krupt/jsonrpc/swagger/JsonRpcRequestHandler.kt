@@ -5,8 +5,11 @@ import com.fasterxml.classmate.TypeResolver
 import com.google.common.base.Optional
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.http.MediaType
+import org.springframework.util.ClassUtils
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ValueConstants
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.mvc.condition.NameValueExpression
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition
@@ -16,6 +19,7 @@ import springfox.documentation.RequestHandlerKey
 import springfox.documentation.service.ResolvedMethodParameter
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.UUID
 
 class JsonRpcRequestHandler(
         private val basePath: String,
@@ -37,6 +41,19 @@ class JsonRpcRequestHandler(
                         null
                     }
                 } as RequestBody
+
+        private val requestParamAnnotation =
+                Proxy.newProxyInstance(
+                        RequestParam::class.java.classLoader,
+                        arrayOf(RequestParam::class.java)
+                ) { _, method, _ ->
+                    when (method.name) {
+                        "required" -> true
+                        "name", "value" -> ""
+                        "defaultValue" -> ValueConstants.DEFAULT_NONE
+                        else -> null
+                    }
+                } as RequestParam
     }
 
     override fun isAnnotatedWith(annotation: Class<out Annotation>) =
@@ -69,18 +86,16 @@ class JsonRpcRequestHandler(
             produces()
     )
 
-    override fun getParameters(): List<ResolvedMethodParameter> {
-        val parameter = method.parameters.firstOrNull()
-
-        return parameter?.let {
-            listOf(ResolvedMethodParameter(
-                    0,
-                    it.name,
-                    it.annotations.asList() + requestBodyAnnotation,
-                    typeResolver.resolve(it.type)
-            ))
-        } ?: emptyList()
-    }
+    override fun getParameters() =
+            method.parameters.mapIndexed { index, it ->
+                ResolvedMethodParameter(
+                        index,
+                        it.name,
+                        it.annotations.asList()
+                                + if (isSimpleParameter(it.type)) requestParamAnnotation else requestBodyAnnotation,
+                        typeResolver.resolve(it.type)
+                )
+            }
 
     override fun getReturnType(): ResolvedType =
             typeResolver.resolve(method.genericReturnType)
@@ -102,4 +117,10 @@ class JsonRpcRequestHandler(
     }
 
     override fun combine(other: RequestHandler?) = this
+
+    private fun isSimpleParameter(clazz: Class<*>): Boolean {
+        return ClassUtils.isPrimitiveOrWrapper(clazz)
+                || clazz == String::class.java
+                || clazz == UUID::class.java
+    }
 }

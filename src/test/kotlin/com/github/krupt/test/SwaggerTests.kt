@@ -4,6 +4,7 @@ import com.github.krupt.jsonrpc.config.JsonRpcProperties
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.matchers.maps.shouldContain
 import io.kotlintest.matchers.maps.shouldContainExactly
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -95,14 +96,12 @@ class SwaggerTests {
                 "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
                 "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
                 "parameters" to listOf(mapOf(
-                        "in" to "body",
+                        "in" to "query",
                         "name" to "userId",
                         "description" to "userId",
                         "required" to true,
-                        "schema" to mapOf(
-                                "type" to "string",
-                                "format" to "uuid"
-                        )
+                        "type" to "string",
+                        "format" to "uuid"
                 )),
                 "responses" to mapOf(
                         "200" to mapOf(
@@ -126,14 +125,12 @@ class SwaggerTests {
                 "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
                 "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
                 "parameters" to listOf(mapOf(
-                        "in" to "body",
+                        "in" to "query",
                         "name" to "count",
                         "description" to "count",
                         "required" to true,
-                        "schema" to mapOf(
-                                "type" to "integer",
-                                "format" to "int32"
-                        )
+                        "type" to "integer",
+                        "format" to "int32"
                 )),
                 "responses" to mapOf(
                         "200" to mapOf(
@@ -204,5 +201,44 @@ class SwaggerTests {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         (apiDocs["info"]!! as Map<String, Any?>)
                 .shouldContain("title", "Api Documentation")
+    }
+
+    @Test
+    fun `api documentation for simple method with simple first parameter`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.update"]!! as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+                "tags" to listOf("[JSON-RPC] testService"),
+                "summary" to "update",
+                "operationId" to "updateUsingPOST",
+                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "parameters" to listOf(
+                        // Sorted by parameter's name (Swagger restriction)
+                        mapOf(
+                                "in" to "body",
+                                "name" to "request",
+                                "description" to "request",
+                                "required" to true,
+                                "schema" to mapOf("\$ref" to "#/definitions/TestRequest")
+                        ),
+                        mapOf(
+                                "in" to "query",
+                                "name" to "userId",
+                                "description" to "userId",
+                                "required" to true,
+                                "type" to "string",
+                                "format" to "uuid"
+                        )
+                ),
+                "responses" to mapOf(
+                        "200" to mapOf(
+                                "description" to "OK",
+                                "schema" to mapOf("\$ref" to "#/definitions/TestUser")
+                        )
+                ),
+                "deprecated" to false
+        )
     }
 }

@@ -7,7 +7,6 @@ import com.github.krupt.jsonrpc.JsonRpcMethodFactory
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
-import com.github.krupt.jsonrpc.exception.JsonRpcException
 import com.github.krupt.jsonrpc.exception.JsonRpcExceptionHandler
 import io.swagger.annotations.ApiOperation
 import org.slf4j.LoggerFactory
@@ -45,7 +44,9 @@ class JsonRpcController(
                 method.isAccessible = true
 
                 MethodInvocation(
-                        method.parameters.firstOrNull()?.type as Class<Any>?,
+                        method.parameters.map {
+                            it.type as Class<Any>
+                        },
                         method,
                         instance
                 )
@@ -61,17 +62,23 @@ class JsonRpcController(
         var result: Any? = null
         methods[request.method]?.let { method ->
             try {
-                if (request.params != null || method.inputType == null) {
+                if (request.params != null || method.inputTypes.isEmpty()) {
                     val params = request.params?.let {
-                        objectMapper.convertValue(it, method.inputType)
+                        if (method.inputTypes.size == 1) {
+                            objectMapper.convertValue(it, method.inputTypes[0])
+                        } else {
+                            (it as List<Any>).mapIndexed { index, parameter ->
+                                objectMapper.convertValue(parameter, method.inputTypes[index])
+                            }.toTypedArray()
+                        }
                     }
                     // Validate
                     val bindException = params?.let {
-                        BindException(params, method.inputType!!.simpleName)
+                        BindException(params, method.inputTypes[0].simpleName)
                     }
-                    bindException?.run {
+                    /*bindException?.run {
                         validator.validate(params, bindException)
-                    }
+                    }*/
                     if (bindException?.hasErrors() == true) {
                         error = JsonRpcError(
                                 JsonRpcError.INVALID_PARAMS,
@@ -151,13 +158,18 @@ class JsonRpcController(
 }
 
 data class MethodInvocation(
-        val inputType: Class<Any>?,
+        val inputTypes: List<Class<Any>>,
         private val method: Method,
         private val instance: Any
 ) {
 
-    fun invoke(args: Any?): Any? = if (inputType != null) {
-        method.invoke(instance, args)
+    fun invoke(args: Any?): Any? = if (inputTypes.isNotEmpty()) {
+        if (inputTypes.size == 1) {
+            method.invoke(instance, args)
+        } else {
+            val varArgs = args as Array<Any>
+            method.invoke(instance, *varArgs)
+        }
     } else {
         method.invoke(instance)
     }
