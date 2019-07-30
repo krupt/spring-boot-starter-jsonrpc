@@ -5,6 +5,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.matchers.maps.shouldContain
 import io.kotlintest.matchers.maps.shouldContainExactly
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -204,5 +205,103 @@ class SwaggerTests {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         (apiDocs["info"]!! as Map<String, Any?>)
                 .shouldContain("title", "Api Documentation")
+    }
+
+    @Test
+    fun `api documentation for method with pageable`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.pageable"]!! as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+                "tags" to listOf("[JSON-RPC] testService"),
+                "summary" to "pageable",
+                "operationId" to "pageableUsingPOST",
+                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+                "parameters" to listOf(mapOf(
+                        "in" to "body",
+                        "name" to "pageable",
+                        "description" to "pageable",
+                        "required" to true,
+                        "schema" to mapOf("\$ref" to "#/definitions/Pageable")
+                )),
+                "responses" to mapOf(
+                        "200" to mapOf(
+                                "description" to "OK",
+                                "schema" to mapOf("\$ref" to "#/definitions/TestPage")
+                        )
+                ),
+                "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `api documentation for pageable and models with pageable`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val definitions = (apiDocs["definitions"]!! as Map<String, Any?>)
+
+        assertAll(
+                {
+                    definitions["Pageable"] as Map<String, Any?> shouldContainExactly mapOf(
+                            "title" to "Pageable",
+                            "type" to "object",
+                            "properties" to mapOf(
+                                    "page" to mapOf(
+                                            "type" to "integer",
+                                            "format" to "int32"
+                                    ),
+                                    "size" to mapOf(
+                                            "type" to "integer",
+                                            "format" to "int32"
+                                    ),
+                                    "sort" to mapOf(
+                                            "type" to "array",
+                                            "items" to mapOf(
+                                                    "\$ref" to "#/definitions/Sort"
+                                            )
+                                    )
+                            )
+                    )
+                },
+                {
+                    definitions["Sort"] as Map<String, Any?> shouldContainExactly mapOf(
+                            "title" to "Sort",
+                            "type" to "object",
+                            "required" to listOf(
+                                    "property"
+                            ),
+                            "properties" to mapOf(
+                                    "property" to mapOf(
+                                            "type" to "string"
+                                    ),
+                                    "direction" to mapOf(
+                                            "type" to "string",
+                                            "enum" to listOf(
+                                                    "ASC",
+                                                    "DESC"
+                                            )
+                                    )
+                            )
+                    )
+                },
+                {
+                    definitions["TestPageableRequest"] as Map<String, Any?> shouldContainExactly mapOf(
+                            "title" to "TestPageableRequest",
+                            "type" to "object",
+                            "required" to listOf(
+                                    "name",
+                                    "pageable"
+                            ),
+                            "properties" to mapOf(
+                                    "name" to mapOf(
+                                            "type" to "string"
+                                    ),
+                                    "pageable" to mapOf(
+                                            "\$ref" to "#/definitions/Pageable"
+                                    )
+                            )
+                    )
+                }
+        )
     }
 }

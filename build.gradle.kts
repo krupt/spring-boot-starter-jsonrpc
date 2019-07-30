@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "com.github.krupt"
-version = "0.5.0"
+version = "0.6.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {
@@ -36,6 +36,7 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compileOnly("org.springframework.data:spring-data-commons")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     api("io.springfox:springfox-swagger2:2.9.2")
@@ -47,6 +48,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
     testImplementation("com.ninja-squad:springmockk:1.1.2")
+    testImplementation("org.springframework.data:spring-data-commons")
 //	testImplementation("io.projectreactor:reactor-test")
 }
 

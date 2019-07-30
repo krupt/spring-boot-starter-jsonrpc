@@ -8,6 +8,8 @@ import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.github.krupt.test.dto.TestRequest
 import com.github.krupt.test.dto.TestResponse
+import com.github.krupt.test.model.TestPage
+import com.github.krupt.test.model.TestSort
 import com.github.krupt.test.model.TestUser
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
@@ -18,7 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.postForObject
 import org.springframework.boot.web.server.LocalServerPort
-import java.util.*
+import org.springframework.data.domain.Sort
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class JsonRpcTests {
@@ -190,6 +193,67 @@ internal class JsonRpcTests {
                         JsonRpcError.INTERNAL_ERROR,
                         "Unhandled exception",
                         "java.lang.IllegalStateException: Invalid service state"
+                )
+        )
+    }
+
+    @Test
+    fun `application calls simple method with pageable param and returns result`() {
+        call<TestPage>(
+                JsonRpcRequest(
+                        "12345U",
+                        "testService.pageable",
+                        mapOf(
+                                "page" to "3",
+                                "size" to "43",
+                                "sort" to listOf(
+                                        mapOf(
+                                                "property" to "name",
+                                                "direction" to "DESC"
+                                        )
+                                )
+                        ),
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                "12345U",
+                TestPage(3,
+                        43,
+                        listOf(
+                                TestSort("name", Sort.Direction.DESC)
+                        )
+                )
+        )
+    }
+
+    @Test
+    fun `application calls simple method with wrapped pageable param and returns result`() {
+        call<TestPage>(
+                JsonRpcRequest(
+                        "12345U",
+                        "testService.pageableWrapper",
+                        mapOf(
+                                "name" to "krupt",
+                                "pageable" to mapOf(
+                                        "page" to "15",
+                                        "size" to "437",
+                                        "sort" to listOf(
+                                                mapOf(
+                                                        "property" to "username",
+                                                        "direction" to "ASC"
+                                                )
+                                        )
+                                )
+                        ),
+                        "2.0"
+                )
+        ) shouldBe JsonRpcResponse(
+                "12345U",
+                TestPage(15,
+                        437,
+                        listOf(
+                                TestSort("username", Sort.Direction.ASC)
+                        )
                 )
         )
     }

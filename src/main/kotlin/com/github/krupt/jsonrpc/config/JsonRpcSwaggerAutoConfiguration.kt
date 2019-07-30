@@ -20,7 +20,7 @@ class JsonRpcSwaggerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(Docket::class, ApiSelectorBuilder::class)
-    fun docketAuto(jsonRpcProperties: JsonRpcProperties) = Docket(DocumentationType.SWAGGER_2)
+    fun docketAuto(jsonRpcProperties: JsonRpcProperties): Docket = Docket(DocumentationType.SWAGGER_2)
             .useDefaultResponseMessages(false)
             .select()
             .paths(PathSelectors.any())
@@ -37,7 +37,7 @@ class JsonRpcSwaggerAutoConfiguration {
     fun docket(
             apiSelectorBuilder: ApiSelectorBuilder,
             jsonRpcProperties: JsonRpcProperties
-    ) = apiSelectorBuilder
+    ): Docket = apiSelectorBuilder
             .apis(
                     Predicates.or(
                             RequestHandlerSelectors.basePackage(JsonRpcProperties.JSON_RPC_BASE_PACKAGE),

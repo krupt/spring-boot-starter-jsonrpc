@@ -7,10 +7,8 @@ import com.github.krupt.jsonrpc.JsonRpcMethodFactory
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
-import com.github.krupt.jsonrpc.exception.JsonRpcException
 import com.github.krupt.jsonrpc.exception.JsonRpcExceptionHandler
 import io.swagger.annotations.ApiOperation
-import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.BindException
@@ -26,19 +24,15 @@ import java.lang.reflect.Method
 
 @RestController
 class JsonRpcController(
-        jsonRpcMethodConfiguration: JsonRpcMethodFactory,
+        jsonRpcMethodFactory: JsonRpcMethodFactory,
         private val exceptionHandler: JsonRpcExceptionHandler,
         private val objectMapper: ObjectMapper,
         private val validator: Validator
 ) {
 
-    companion object {
-        private val log = LoggerFactory.getLogger(JsonRpcController::class.java)
-    }
-
     @Suppress("UNCHECKED_CAST")
     private val methods =
-            jsonRpcMethodConfiguration.methods.mapValues {
+            jsonRpcMethodFactory.methods.mapValues {
                 val (_, instance, method) = it.value
 
                 // For best performance
