@@ -1,7 +1,8 @@
 package com.github.krupt.test
 
-import com.github.krupt.jsonrpc.config.JsonRpcProperties
+import com.github.krupt.jsonrpc.config.JsonRpcConfigurationProperties
 import com.ninjasquad.springmockk.MockkBean
+import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.matchers.maps.shouldContain
 import io.kotlintest.matchers.maps.shouldContainExactly
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ class SwaggerTests {
     private var port: Int = 0
 
     @Autowired
-    private lateinit var jsonRpcProperties: JsonRpcProperties
+    private lateinit var jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -32,7 +33,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for simple method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.process"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.process"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -60,7 +61,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for async method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.processAsync"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.processAsync"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -87,7 +88,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for simple method with simple parameter`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.get"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.get"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -118,7 +119,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for simple method with array output`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.list"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.list"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -154,7 +155,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for method without parameters`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.call"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.call"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -174,7 +175,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for main method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("json-rpc-controller"),
@@ -210,7 +211,7 @@ class SwaggerTests {
     @Test
     fun `api documentation for method with pageable`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcProperties.path}/json-rpc/testService.pageable"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.pageable"]!! as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
                 "tags" to listOf("[JSON-RPC] testService"),
@@ -302,6 +303,24 @@ class SwaggerTests {
                             )
                     )
                 }
+        )
+    }
+
+    @Test
+    fun `api documentation without CGLIB methods`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        (apiDocs["paths"]!! as Map<String, Any?>).keys shouldContainExactlyInAnyOrder listOf(
+                "/testApi",
+                "/testApi/json-rpc/customTestService.test",
+                "/testApi/json-rpc/testService.call",
+                "/testApi/json-rpc/testService.exception",
+                "/testApi/json-rpc/testService.get",
+                "/testApi/json-rpc/testService.jsonRpcException",
+                "/testApi/json-rpc/testService.list",
+                "/testApi/json-rpc/testService.pageable",
+                "/testApi/json-rpc/testService.pageableWrapper",
+                "/testApi/json-rpc/testService.process",
+                "/testApi/json-rpc/testService.processAsync"
         )
     }
 }

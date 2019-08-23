@@ -2,7 +2,7 @@ package com.github.krupt.test
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
-import com.github.krupt.jsonrpc.config.JsonRpcProperties
+import com.github.krupt.jsonrpc.config.JsonRpcConfigurationProperties
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
@@ -33,7 +33,7 @@ internal class JsonRpcTests {
     private var port: Int = 0
 
     @Autowired
-    private lateinit var jsonRpcProperties: JsonRpcProperties
+    private lateinit var jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -260,7 +260,7 @@ internal class JsonRpcTests {
 
     private inline fun <reified R> call(request: JsonRpcRequest<Any>): JsonRpcResponse<R>? {
         val rawResponse: JsonRpcResponse<Map<String, Any?>>? = restTemplate.postForObject(
-                "http://localhost:$port/${jsonRpcProperties.path}",
+                "http://localhost:$port/${jsonRpcConfigurationProperties.path}",
                 request
         )
 

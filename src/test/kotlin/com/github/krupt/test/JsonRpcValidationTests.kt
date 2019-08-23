@@ -1,6 +1,6 @@
 package com.github.krupt.test
 
-import com.github.krupt.jsonrpc.config.JsonRpcProperties
+import com.github.krupt.jsonrpc.config.JsonRpcConfigurationProperties
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.ninjasquad.springmockk.MockkBean
@@ -30,7 +30,7 @@ internal class JsonRpcValidationTests {
     private var port: Int = 0
 
     @Autowired
-    private lateinit var jsonRpcProperties: JsonRpcProperties
+    private lateinit var jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -235,7 +235,7 @@ internal class JsonRpcValidationTests {
                 request,
                 headers,
                 HttpMethod.POST,
-                URI.create("http://localhost:$port/${jsonRpcProperties.path}")
+                URI.create("http://localhost:$port/${jsonRpcConfigurationProperties.path}")
         )).body
     }
 }

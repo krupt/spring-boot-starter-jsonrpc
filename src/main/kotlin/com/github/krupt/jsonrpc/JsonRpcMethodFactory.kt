@@ -1,9 +1,10 @@
 package com.github.krupt.jsonrpc
 
-import org.springframework.beans.factory.ListableBeanFactory
-import org.springframework.stereotype.Component
 import com.github.krupt.jsonrpc.annotation.JsonRpcService
 import com.github.krupt.jsonrpc.annotation.NoJsonRpcMethod
+import org.springframework.beans.factory.ListableBeanFactory
+import org.springframework.data.util.ProxyUtils
+import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -16,7 +17,7 @@ class JsonRpcMethodFactory(
     val methods =
             beanFactory.getBeansWithAnnotation(JsonRpcService::class.java)
                     .map {
-                        it.value::class.java.methods
+                        ProxyUtils.getUserClass(it.value).methods
                                 .filter { method ->
                                     Modifier.isPublic(method.modifiers)
                                             && method.parameters.size <= 1

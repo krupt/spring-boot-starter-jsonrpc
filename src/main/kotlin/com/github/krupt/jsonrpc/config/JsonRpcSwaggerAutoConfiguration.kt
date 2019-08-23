@@ -20,14 +20,14 @@ class JsonRpcSwaggerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(Docket::class, ApiSelectorBuilder::class)
-    fun docketAuto(jsonRpcProperties: JsonRpcProperties): Docket = Docket(DocumentationType.SWAGGER_2)
+    fun docketAuto(jsonRpcConfigurationProperties: JsonRpcConfigurationProperties): Docket = Docket(DocumentationType.SWAGGER_2)
             .useDefaultResponseMessages(false)
             .select()
             .paths(PathSelectors.any())
             .apis(
                     Predicates.or(
-                            RequestHandlerSelectors.basePackage(JsonRpcProperties.JSON_RPC_BASE_PACKAGE),
-                            RequestHandlerSelectors.basePackage(jsonRpcProperties.basePackage!!)
+                            RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
+                            RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
                     )
             ).build()
 
@@ -36,12 +36,12 @@ class JsonRpcSwaggerAutoConfiguration {
     @ConditionalOnBean(ApiSelectorBuilder::class)
     fun docket(
             apiSelectorBuilder: ApiSelectorBuilder,
-            jsonRpcProperties: JsonRpcProperties
+            jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
     ): Docket = apiSelectorBuilder
             .apis(
                     Predicates.or(
-                            RequestHandlerSelectors.basePackage(JsonRpcProperties.JSON_RPC_BASE_PACKAGE),
-                            RequestHandlerSelectors.basePackage(jsonRpcProperties.basePackage!!)
+                            RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
+                            RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
                     )
             ).build()
 }

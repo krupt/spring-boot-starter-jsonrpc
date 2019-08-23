@@ -10,8 +10,8 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@EnableConfigurationProperties(JsonRpcProperties::class)
-@ComponentScan(JsonRpcProperties.JSON_RPC_BASE_PACKAGE)
+@EnableConfigurationProperties(JsonRpcConfigurationProperties::class)
+@ComponentScan(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE)
 class JsonRpcAutoConfiguration {
 
     @Bean

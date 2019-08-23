@@ -9,6 +9,7 @@ import com.github.krupt.test.model.TestPage
 import com.github.krupt.test.model.TestSort
 import com.github.krupt.test.model.TestState
 import com.github.krupt.test.model.TestUser
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Pageable
 import java.util.UUID
 
@@ -17,6 +18,7 @@ class TestService(
         private val testRunnable: Runnable
 ) {
 
+    @Cacheable("users")
     fun get(userId: UUID) = TestUser(userId)
 
     fun process(request: TestRequest): TestResponse {
