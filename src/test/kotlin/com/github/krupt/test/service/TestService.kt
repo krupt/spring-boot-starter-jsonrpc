@@ -4,6 +4,7 @@ import com.github.krupt.jsonrpc.annotation.JsonRpcService
 import com.github.krupt.test.dto.TestPageableRequest
 import com.github.krupt.test.dto.TestRequest
 import com.github.krupt.test.dto.TestResponse
+import com.github.krupt.test.exception.ReThrowingException
 import com.github.krupt.test.exception.TestException
 import com.github.krupt.test.model.TestPage
 import com.github.krupt.test.model.TestSort
@@ -62,4 +63,8 @@ class TestService(
                         TestSort(it.property, it.direction)
                     }.toList()
             )
+
+    fun reThrowingException() {
+        throw ReThrowingException("Error")
+    }
 }

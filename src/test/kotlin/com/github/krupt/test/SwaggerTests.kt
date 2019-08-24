@@ -320,7 +320,8 @@ class SwaggerTests {
                 "/testApi/json-rpc/testService.pageable",
                 "/testApi/json-rpc/testService.pageableWrapper",
                 "/testApi/json-rpc/testService.process",
-                "/testApi/json-rpc/testService.processAsync"
+                "/testApi/json-rpc/testService.processAsync",
+                "/testApi/json-rpc/testService.reThrowingException"
         )
     }
 }

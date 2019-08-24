@@ -50,55 +50,80 @@ class JsonRpcController(
             "The endpoint that handles all JSON-RPC requests",
             notes = """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>"""
     )
-    fun handle(@RequestBody @Validated request: JsonRpcRequest<Any>): ResponseEntity<JsonRpcResponse<Any>?> {
-        var error: JsonRpcError? = null
-        var result: Any? = null
-        methods[request.method]?.let { method ->
-            try {
-                if (request.params != null || method.inputType == null) {
-                    val params = request.params?.let {
-                        objectMapper.convertValue(it, method.inputType)
-                    }
-                    // Validate
-                    val bindException = params?.let {
-                        BindException(params, method.inputType!!.simpleName)
-                    }
-                    bindException?.run {
-                        validator.validate(params, bindException)
-                    }
-                    if (bindException?.hasErrors() == true) {
-                        error = JsonRpcError(
-                                JsonRpcError.INVALID_PARAMS,
-                                JsonRpcError.INVALID_PARAMS_MESSAGE,
-                                bindException.bindingResult.fieldErrors
-                                        .map { fieldError ->
-                                            fieldError.toString()
-                                        }
-                        )
-                    } else {
-                        try {
-                            result = method.invoke(params)
-                        } catch (e: Throwable) {
-                            val exception = if (e is InvocationTargetException) {
-                                e.cause!!
-                            } else {
-                                e
-                            }
-                            error = exceptionHandler.handle(exception)
-                        }
-                    }
-                } else {
-                    error = JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, "Params can't be null")
-                }
-            } catch (e: Exception) {
-                error = JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, e.toString())
-            }
-        } ?: run {
-            error = JsonRpcError(JsonRpcError.METHOD_NOT_FOUND, JsonRpcError.METHOD_NOT_FOUND_MESSAGE)
+    fun handle(@RequestBody @Validated request: JsonRpcRequest<Any>): ResponseEntity<JsonRpcResponse<Any>> {
+        val method = methods[request.method]
+                ?: return buildResponse(
+                        request.id,
+                        JsonRpcError(JsonRpcError.METHOD_NOT_FOUND, JsonRpcError.METHOD_NOT_FOUND_MESSAGE)
+                )
+
+        if (request.params == null && method.inputType != null) {
+            return buildResponse(
+                    request.id,
+                    JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, "Params can't be null")
+            )
         }
 
-        return request.id?.let { id ->
-            ResponseEntity.ok(JsonRpcResponse(id, result, error))
+        val params = request.params?.let {
+            try {
+                objectMapper.convertValue(it, method.inputType)
+            } catch (e: Exception) {
+                return buildResponse(
+                        request.id,
+                        JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, e.toString())
+                )
+            }
+        }
+
+        // Validate
+        val bindException = params?.let {
+            BindException(params, method.inputType!!.simpleName)
+        }
+        bindException?.run {
+            validator.validate(params, bindException)
+        }
+        if (bindException?.hasErrors() == true) {
+            return buildResponse(
+                    request.id,
+                    JsonRpcError(
+                            JsonRpcError.INVALID_PARAMS,
+                            "Request didn't pass validation",
+                            bindException.bindingResult.fieldErrors
+                                    .map { fieldError ->
+                                        fieldError.toString()
+                                    }
+                    )
+            )
+        }
+
+        try {
+            val result = method.invoke(params)
+
+            return buildResponse(
+                    request.id,
+                    result = result,
+                    error = null
+            )
+        } catch (e: Throwable) {
+            val exception = if (e is InvocationTargetException) {
+                e.cause!!
+            } else {
+                e
+            }
+            return buildResponse(
+                    request.id,
+                    exceptionHandler.handle(exception)
+            )
+        }
+    }
+
+    private fun buildResponse(
+            requestId: Any?,
+            error: JsonRpcError?,
+            result: Any? = null
+    ): ResponseEntity<JsonRpcResponse<Any>> {
+        return requestId?.let {
+            ResponseEntity.ok(JsonRpcResponse(it, result, error))
         } ?: ResponseEntity.ok().build()
     }
 
@@ -135,7 +160,7 @@ class JsonRpcController(
                     id = (exception.bindingResult.target as JsonRpcRequest<*>).id ?: 1,
                     error = JsonRpcError(
                             JsonRpcError.INVALID_REQUEST,
-                            "Invalid request",
+                            JsonRpcError.INVALID_REQUEST_MESSAGE,
                             exception.bindingResult.fieldErrors
                                     .map {
                                         it.toString()

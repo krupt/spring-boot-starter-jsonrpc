@@ -193,7 +193,7 @@ internal class JsonRpcValidationTests {
                 { response.result shouldBe null },
                 { response.error shouldNotBe null },
                 { response.error!!.code shouldBe JsonRpcError.INVALID_PARAMS },
-                { response.error!!.message shouldBe "Invalid method parameter(s)" },
+                { response.error!!.message shouldBe "Request didn't pass validation" },
                 {
                     val errorMessages = response.error!!.data as List<String>
                     errorMessages.size shouldBe 1
