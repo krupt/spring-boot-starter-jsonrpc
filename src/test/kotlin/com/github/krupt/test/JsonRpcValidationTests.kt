@@ -4,6 +4,7 @@ import com.github.krupt.jsonrpc.config.JsonRpcConfigurationProperties
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.ninjasquad.springmockk.MockkBean
+import io.kotlintest.matchers.maps.shouldContainExactly
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -34,6 +35,33 @@ internal class JsonRpcValidationTests {
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
+
+    @Test
+    fun `successful response doesn't have error field`() {
+        val request = """
+                    {
+                        "method": "testService.call",
+                        "id": "345",
+                        "jsonrpc": "2.0"
+                    }
+                """.trimIndent()
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        val response = restTemplate.exchange<Map<String, Any>>(RequestEntity(
+                request,
+                headers,
+                HttpMethod.POST,
+                URI.create("http://localhost:$port/${jsonRpcConfigurationProperties.path}")
+        )).body!!
+
+        response shouldContainExactly mapOf(
+                "id" to "345",
+                "result" to null,
+                "jsonrpc" to "2.0"
+        )
+    }
 
     @Test
     fun `request with invalid JSON fails`() {
