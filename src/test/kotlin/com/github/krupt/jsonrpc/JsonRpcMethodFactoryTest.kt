@@ -9,6 +9,7 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.UUID
 
 @SpringBootTest(classes = [
     JsonRpcMethodFactory::class,
@@ -50,6 +51,13 @@ class ServiceWithOnlyHiddenMethods {
 @JsonRpcService("customTestService")
 class TestServiceWithCustomComponentName {
 
+    companion object {
+        val CONSTANT: UUID = UUID.randomUUID()
+    }
+
     fun test(request: TestRequest) {
+        run {
+            CONSTANT
+        }
     }
 }

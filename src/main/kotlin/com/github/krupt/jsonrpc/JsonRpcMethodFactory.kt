@@ -20,6 +20,7 @@ class JsonRpcMethodFactory(
                         ProxyUtils.getUserClass(it.value).methods
                                 .filter { method ->
                                     Modifier.isPublic(method.modifiers)
+                                            && !Modifier.isStatic(method.modifiers)
                                             && method.parameters.size <= 1
                                             && method.declaringClass != Object::class.java
                                             && !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
