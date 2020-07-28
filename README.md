@@ -71,4 +71,4 @@ In these projects Swagger's documentation looks like this:
 
 ## Road map ##
 * Add support for Spring Web Flux
-* Better Spring integration (like Spring WebMVC)
+* Add more clear option to develop and understand methods using JsonRpcMethod interface
