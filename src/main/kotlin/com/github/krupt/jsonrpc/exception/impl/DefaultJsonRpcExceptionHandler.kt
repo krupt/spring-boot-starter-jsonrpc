@@ -12,15 +12,15 @@ open class DefaultJsonRpcExceptionHandler : JsonRpcExceptionHandler {
     }
 
     override fun handle(exception: Throwable) =
-            if (exception is JsonRpcException) {
-                JsonRpcError(exception.code, exception.message, exception.data)
-            } else {
-                val error = handleNonJsonRpcException(exception)
-                error ?: run {
-                    log.error("Unhandled exception", exception)
-                    JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
-                }
+        if (exception is JsonRpcException) {
+            JsonRpcError(exception.code, exception.message, exception.data)
+        } else {
+            val error = handleNonJsonRpcException(exception)
+            error ?: run {
+                log.error("Unhandled exception", exception)
+                JsonRpcError(JsonRpcError.INTERNAL_ERROR, "Unhandled exception", exception.toString())
             }
+        }
 
     open fun handleNonJsonRpcException(exception: Throwable): JsonRpcError? = null
 }

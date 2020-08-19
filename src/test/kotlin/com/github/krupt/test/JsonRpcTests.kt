@@ -44,15 +44,15 @@ internal class JsonRpcTests {
     @Test
     fun `application calls simple method and returns result`() {
         call<TestResponse>(
-                JsonRpcRequest(
-                        "12345",
-                        "testService.process",
-                        TestRequest("krupt"),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "12345",
-                TestResponse(1567)
+                "testService.process",
+                TestRequest("krupt"),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "12345",
+            TestResponse(1567)
         )
     }
 
@@ -60,30 +60,30 @@ internal class JsonRpcTests {
     fun `application calls simple method with simple param and returns result`() {
         val testId = UUID.randomUUID()
         call<TestUser>(
-                JsonRpcRequest(
-                        "12345U",
-                        "testService.get",
-                        testId,
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "12345U",
-                TestUser(testId)
+                "testService.get",
+                testId,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "12345U",
+            TestUser(testId)
         )
     }
 
     @Test
     fun `application calls async method and returns empty result with identifier`() {
         call<Any>(
-                JsonRpcRequest(
-                        "9876",
-                        "testService.processAsync",
-                        TestRequest("krupt"),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "9876",
-                null
+                "testService.processAsync",
+                TestRequest("krupt"),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "9876",
+            null
         )
 
         verify {
@@ -94,11 +94,11 @@ internal class JsonRpcTests {
     @Test
     fun `application calls simple method without id and returns empty response`() {
         call<Any>(
-                JsonRpcRequest(
-                        method = "testService.process",
-                        params = TestRequest("krupt"),
-                        jsonRpc = "2.0"
-                )
+            JsonRpcRequest(
+                method = "testService.process",
+                params = TestRequest("krupt"),
+                jsonRpc = "2.0"
+            )
         ) shouldBe null
 
         verify {
@@ -109,11 +109,11 @@ internal class JsonRpcTests {
     @Test
     fun `application calls async method without id and returns empty response`() {
         call<Any>(
-                JsonRpcRequest(
-                        method = "testService.processAsync",
-                        params = TestRequest("krupt"),
-                        jsonRpc = "2.0"
-                )
+            JsonRpcRequest(
+                method = "testService.processAsync",
+                params = TestRequest("krupt"),
+                jsonRpc = "2.0"
+            )
         ) shouldBe null
 
         verify {
@@ -124,15 +124,15 @@ internal class JsonRpcTests {
     @Test
     fun `application calls method without parameter and returns empty response`() {
         call<Any>(
-                JsonRpcRequest(
-                        "342423324",
-                        "testService.call",
-                        null,
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "342423324",
-                null
+                "testService.call",
+                null,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "342423324",
+            null
         )
 
         verify {
@@ -143,125 +143,125 @@ internal class JsonRpcTests {
     @Test
     fun `application calls method with non-nullable parameter`() {
         call<Any>(
-                JsonRpcRequest(
-                        123456798,
-                        "testService.process",
-                        null,
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 123456798,
-                error = JsonRpcError(
-                        JsonRpcError.INVALID_PARAMS,
-                        JsonRpcError.INVALID_PARAMS_MESSAGE,
-                        "Params can't be null"
-                )
+                "testService.process",
+                null,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            123456798,
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                JsonRpcError.INVALID_PARAMS_MESSAGE,
+                "Params can't be null"
+            )
         )
     }
 
     @Test
     fun `application calls method that throwing JSON-RPC exception`() {
         call<Any>(
-                JsonRpcRequest(
-                        1234567,
-                        "testService.jsonRpcException",
-                        TestRequest("krupt"),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 1234567,
-                error = JsonRpcError(
-                        -29345,
-                        "Test state is incorrect",
-                        mapOf("userId" to "krupt")
-                )
+                "testService.jsonRpcException",
+                TestRequest("krupt"),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            1234567,
+            error = JsonRpcError(
+                -29345,
+                "Test state is incorrect",
+                mapOf("userId" to "krupt")
+            )
         )
     }
 
     @Test
     fun `application calls method that throwing exception`() {
         call<Any>(
-                JsonRpcRequest(
-                        mapOf("id" to 6709),
-                        "testService.exception",
-                        TestRequest("krupt"),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 mapOf("id" to 6709),
-                error = JsonRpcError(
-                        JsonRpcError.INTERNAL_ERROR,
-                        "Unhandled exception",
-                        "java.lang.IllegalStateException: Invalid service state"
-                )
+                "testService.exception",
+                TestRequest("krupt"),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            mapOf("id" to 6709),
+            error = JsonRpcError(
+                JsonRpcError.INTERNAL_ERROR,
+                "Unhandled exception",
+                "java.lang.IllegalStateException: Invalid service state"
+            )
         )
     }
 
     @Test
     fun `application calls simple method with pageable param and returns result`() {
         call<TestPage>(
-                JsonRpcRequest(
-                        "12345U",
-                        "testService.pageable",
-                        mapOf(
-                                "page" to "3",
-                                "size" to "43",
-                                "sort" to listOf(
-                                        mapOf(
-                                                "property" to "name",
-                                                "direction" to "DESC"
-                                        )
-                                )
-                        ),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "12345U",
-                TestPage(3,
-                        43,
-                        listOf(
-                                TestSort("name", Sort.Direction.DESC)
+                "testService.pageable",
+                mapOf(
+                    "page" to "3",
+                    "size" to "43",
+                    "sort" to listOf(
+                        mapOf(
+                            "property" to "name",
+                            "direction" to "DESC"
                         )
+                    )
+                ),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "12345U",
+            TestPage(3,
+                43,
+                listOf(
+                    TestSort("name", Sort.Direction.DESC)
                 )
+            )
         )
     }
 
     @Test
     fun `application calls simple method with wrapped pageable param and returns result`() {
         call<TestPage>(
-                JsonRpcRequest(
-                        "12345U",
-                        "testService.pageableWrapper",
-                        mapOf(
-                                "name" to "krupt",
-                                "pageable" to mapOf(
-                                        "page" to "15",
-                                        "size" to "437",
-                                        "sort" to listOf(
-                                                mapOf(
-                                                        "property" to "username",
-                                                        "direction" to "ASC"
-                                                )
-                                        )
-                                )
-                        ),
-                        "2.0"
-                )
-        ) shouldBe JsonRpcResponse(
+            JsonRpcRequest(
                 "12345U",
-                TestPage(15,
-                        437,
-                        listOf(
-                                TestSort("username", Sort.Direction.ASC)
+                "testService.pageableWrapper",
+                mapOf(
+                    "name" to "krupt",
+                    "pageable" to mapOf(
+                        "page" to "15",
+                        "size" to "437",
+                        "sort" to listOf(
+                            mapOf(
+                                "property" to "username",
+                                "direction" to "ASC"
+                            )
                         )
+                    )
+                ),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "12345U",
+            TestPage(15,
+                437,
+                listOf(
+                    TestSort("username", Sort.Direction.ASC)
                 )
+            )
         )
     }
 
     private inline fun <reified R> call(request: JsonRpcRequest<Any>): JsonRpcResponse<R>? {
         val rawResponse: JsonRpcResponse<Map<String, Any?>>? = restTemplate.postForObject(
-                "http://localhost:$port/${jsonRpcConfigurationProperties.path}",
-                request
+            "http://localhost:$port/${jsonRpcConfigurationProperties.path}",
+            request
         )
 
         return rawResponse?.let {
@@ -270,10 +270,10 @@ internal class JsonRpcTests {
             }
 
             return JsonRpcResponse(
-                    rawResponse.id,
-                    result,
-                    rawResponse.error,
-                    rawResponse.jsonRpc
+                rawResponse.id,
+                result,
+                rawResponse.error,
+                rawResponse.jsonRpc
             )
         }
     }

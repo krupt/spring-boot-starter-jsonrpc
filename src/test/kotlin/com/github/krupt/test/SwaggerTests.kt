@@ -33,171 +33,178 @@ class SwaggerTests {
     @Test
     fun `api documentation for simple method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.process"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.process") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "process",
-                "operationId" to "processUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "request",
-                        "description" to "request",
-                        "required" to true,
-                        "schema" to mapOf("\$ref" to "#/definitions/TestRequest")
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK",
-                                "schema" to mapOf("\$ref" to "#/definitions/TestResponse")
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "process",
+            "operationId" to "processUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "request",
+                "description" to "request",
+                "required" to true,
+                "schema" to mapOf("\$ref" to "#/definitions/TestRequest")
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestResponse")
+                )
+            ),
+            "deprecated" to false
         )
     }
 
     @Test
     fun `api documentation for async method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.processAsync"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.processAsync") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "processAsync",
-                "operationId" to "processAsyncUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "request",
-                        "description" to "request",
-                        "required" to true,
-                        "schema" to mapOf("\$ref" to "#/definitions/TestRequest")
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK"
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "processAsync",
+            "operationId" to "processAsyncUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "request",
+                "description" to "request",
+                "required" to true,
+                "schema" to mapOf("\$ref" to "#/definitions/TestRequest")
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK"
+                )
+            ),
+            "deprecated" to false
         )
     }
 
     @Test
     fun `api documentation for simple method with simple parameter`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.get"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.get") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "get",
-                "operationId" to "getUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "userId",
-                        "description" to "userId",
-                        "required" to true,
-                        "schema" to mapOf(
-                                "type" to "string",
-                                "format" to "uuid"
-                        )
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK",
-                                "schema" to mapOf("\$ref" to "#/definitions/TestUser")
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "get",
+            "operationId" to "getUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "userId",
+                "description" to "userId",
+                "required" to true,
+                "schema" to mapOf(
+                    "type" to "string",
+                    "format" to "uuid"
+                )
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestUser")
+                )
+            ),
+            "deprecated" to false
         )
     }
 
     @Test
     fun `api documentation for simple method with array output`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.list"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.list") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "list",
-                "operationId" to "listUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "count",
-                        "description" to "count",
-                        "required" to true,
-                        "schema" to mapOf(
-                                "type" to "integer",
-                                "format" to "int32"
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "list",
+            "operationId" to "listUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "count",
+                "description" to "count",
+                "required" to true,
+                "schema" to mapOf(
+                    "type" to "integer",
+                    "format" to "int32"
+                )
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf(
+                        "type" to "array",
+                        "items" to mapOf(
+                            "\$ref" to "#/definitions/TestUser"
                         )
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK",
-                                "schema" to mapOf(
-                                        "type" to "array",
-                                        "items" to mapOf(
-                                                "\$ref" to "#/definitions/TestUser"
-                                        )
-                                )
-                        )
-                ),
-                "deprecated" to false
+                    )
+                )
+            ),
+            "deprecated" to false
         )
     }
 
     @Test
     fun `api documentation for method without parameters`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.call"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.call") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "call",
-                "operationId" to "callUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK"
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "call",
+            "operationId" to "callUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK"
+                )
+            ),
+            "deprecated" to false
         )
     }
 
     @Test
     fun `api documentation for main method`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("json-rpc-controller"),
-                "summary" to "The endpoint that handles all JSON-RPC requests",
-                "description" to """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>""",
-                "operationId" to "handleUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.ALL_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "request",
-                        "description" to "request",
-                        "required" to true,
-                        "schema" to mapOf("\$ref" to "#/definitions/JsonRpcRequest«object»")
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK",
-                                "schema" to mapOf("\$ref" to "#/definitions/JsonRpcResponse«object»")
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("json-rpc-controller"),
+            "summary" to "The endpoint that handles all JSON-RPC requests",
+            "description" to
+                """Read more about <a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>""",
+            "operationId" to "handleUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.ALL_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "request",
+                "description" to "request",
+                "required" to true,
+                "schema" to mapOf("\$ref" to "#/definitions/JsonRpcRequest«object»")
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/JsonRpcResponse«object»")
+                )
+            ),
+            "deprecated" to false
         )
     }
 
@@ -205,34 +212,35 @@ class SwaggerTests {
     fun `api documentation default info`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         (apiDocs["info"]!! as Map<String, Any?>)
-                .shouldContain("title", "Api Documentation")
+            .shouldContain("title", "Api Documentation")
     }
 
     @Test
     fun `api documentation for method with pageable`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
-        val processMethodInfo = (apiDocs["paths"]!! as Map<String, Any?>)["/${jsonRpcConfigurationProperties.path}/json-rpc/testService.pageable"]!! as Map<String, Any?>
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/testService.pageable") as Map<String, Any?>
 
         processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
-                "tags" to listOf("[JSON-RPC] testService"),
-                "summary" to "pageable",
-                "operationId" to "pageableUsingPOST",
-                "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
-                "parameters" to listOf(mapOf(
-                        "in" to "body",
-                        "name" to "pageable",
-                        "description" to "pageable",
-                        "required" to true,
-                        "schema" to mapOf("\$ref" to "#/definitions/Pageable")
-                )),
-                "responses" to mapOf(
-                        "200" to mapOf(
-                                "description" to "OK",
-                                "schema" to mapOf("\$ref" to "#/definitions/TestPage")
-                        )
-                ),
-                "deprecated" to false
+            "tags" to listOf("[JSON-RPC] testService"),
+            "summary" to "pageable",
+            "operationId" to "pageableUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "pageable",
+                "description" to "pageable",
+                "required" to true,
+                "schema" to mapOf("\$ref" to "#/definitions/Pageable")
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestPage")
+                )
+            ),
+            "deprecated" to false
         )
     }
 
@@ -242,67 +250,67 @@ class SwaggerTests {
         val definitions = (apiDocs["definitions"]!! as Map<String, Any?>)
 
         assertAll(
-                {
-                    definitions["Pageable"] as Map<String, Any?> shouldContainExactly mapOf(
-                            "title" to "Pageable",
-                            "type" to "object",
-                            "properties" to mapOf(
-                                    "page" to mapOf(
-                                            "type" to "integer",
-                                            "format" to "int32"
-                                    ),
-                                    "size" to mapOf(
-                                            "type" to "integer",
-                                            "format" to "int32"
-                                    ),
-                                    "sort" to mapOf(
-                                            "type" to "array",
-                                            "items" to mapOf(
-                                                    "\$ref" to "#/definitions/Sort"
-                                            )
-                                    )
+            {
+                definitions["Pageable"] as Map<String, Any?> shouldContainExactly mapOf(
+                    "title" to "Pageable",
+                    "type" to "object",
+                    "properties" to mapOf(
+                        "page" to mapOf(
+                            "type" to "integer",
+                            "format" to "int32"
+                        ),
+                        "size" to mapOf(
+                            "type" to "integer",
+                            "format" to "int32"
+                        ),
+                        "sort" to mapOf(
+                            "type" to "array",
+                            "items" to mapOf(
+                                "\$ref" to "#/definitions/Sort"
                             )
+                        )
                     )
-                },
-                {
-                    definitions["Sort"] as Map<String, Any?> shouldContainExactly mapOf(
-                            "title" to "Sort",
-                            "type" to "object",
-                            "required" to listOf(
-                                    "property"
-                            ),
-                            "properties" to mapOf(
-                                    "property" to mapOf(
-                                            "type" to "string"
-                                    ),
-                                    "direction" to mapOf(
-                                            "type" to "string",
-                                            "enum" to listOf(
-                                                    "ASC",
-                                                    "DESC"
-                                            )
-                                    )
+                )
+            },
+            {
+                definitions["Sort"] as Map<String, Any?> shouldContainExactly mapOf(
+                    "title" to "Sort",
+                    "type" to "object",
+                    "required" to listOf(
+                        "property"
+                    ),
+                    "properties" to mapOf(
+                        "property" to mapOf(
+                            "type" to "string"
+                        ),
+                        "direction" to mapOf(
+                            "type" to "string",
+                            "enum" to listOf(
+                                "ASC",
+                                "DESC"
                             )
+                        )
                     )
-                },
-                {
-                    definitions["TestPageableRequest"] as Map<String, Any?> shouldContainExactly mapOf(
-                            "title" to "TestPageableRequest",
-                            "type" to "object",
-                            "required" to listOf(
-                                    "name",
-                                    "pageable"
-                            ),
-                            "properties" to mapOf(
-                                    "name" to mapOf(
-                                            "type" to "string"
-                                    ),
-                                    "pageable" to mapOf(
-                                            "\$ref" to "#/definitions/Pageable"
-                                    )
-                            )
+                )
+            },
+            {
+                definitions["TestPageableRequest"] as Map<String, Any?> shouldContainExactly mapOf(
+                    "title" to "TestPageableRequest",
+                    "type" to "object",
+                    "required" to listOf(
+                        "name",
+                        "pageable"
+                    ),
+                    "properties" to mapOf(
+                        "name" to mapOf(
+                            "type" to "string"
+                        ),
+                        "pageable" to mapOf(
+                            "\$ref" to "#/definitions/Pageable"
+                        )
                     )
-                }
+                )
+            }
         )
     }
 
@@ -310,18 +318,18 @@ class SwaggerTests {
     fun `api documentation without CGLIB methods`() {
         val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         (apiDocs["paths"]!! as Map<String, Any?>).keys shouldContainExactlyInAnyOrder listOf(
-                "/testApi",
-                "/testApi/json-rpc/customTestService.test",
-                "/testApi/json-rpc/testService.call",
-                "/testApi/json-rpc/testService.exception",
-                "/testApi/json-rpc/testService.get",
-                "/testApi/json-rpc/testService.jsonRpcException",
-                "/testApi/json-rpc/testService.list",
-                "/testApi/json-rpc/testService.pageable",
-                "/testApi/json-rpc/testService.pageableWrapper",
-                "/testApi/json-rpc/testService.process",
-                "/testApi/json-rpc/testService.processAsync",
-                "/testApi/json-rpc/testService.reThrowingException"
+            "/testApi",
+            "/testApi/json-rpc/customTestService.test",
+            "/testApi/json-rpc/testService.call",
+            "/testApi/json-rpc/testService.exception",
+            "/testApi/json-rpc/testService.get",
+            "/testApi/json-rpc/testService.jsonRpcException",
+            "/testApi/json-rpc/testService.list",
+            "/testApi/json-rpc/testService.pageable",
+            "/testApi/json-rpc/testService.pageableWrapper",
+            "/testApi/json-rpc/testService.process",
+            "/testApi/json-rpc/testService.processAsync",
+            "/testApi/json-rpc/testService.reThrowingException"
         )
     }
 }

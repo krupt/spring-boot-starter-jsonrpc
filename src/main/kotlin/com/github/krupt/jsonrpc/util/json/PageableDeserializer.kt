@@ -17,42 +17,56 @@ import org.springframework.data.domain.Sort
 @JsonComponent
 @ConditionalOnClass(Pageable::class)
 class PageableDeserializer(
-        springDataWebProperties: SpringDataWebProperties
+    springDataWebProperties: SpringDataWebProperties
 ) : JsonObjectDeserializer<Pageable>() {
 
     private val pageableProperties = springDataWebProperties.pageable
 
-    override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec?, tree: JsonNode?): Pageable? {
+    override fun deserializeObject(
+        jsonParser: JsonParser?,
+        context: DeserializationContext?,
+        codec: ObjectCodec?,
+        tree: JsonNode?
+    ): Pageable? {
         if (tree?.isObject == true) {
             val pageNumber = tree.get("page")?.asInt() ?: 0
             val pageSize = tree.get("size")?.asInt() ?: pageableProperties.defaultPageSize
             val sort = tree.get("sort")
 
             return PageRequest.of(
-                    pageNumber,
-                    if (pageSize > pageableProperties.maxPageSize)
-                        pageableProperties.maxPageSize
-                    else
-                        pageSize,
-                    deserializeSort(jsonParser, sort)
+                pageNumber,
+                if (pageSize > pageableProperties.maxPageSize) {
+                    pageableProperties.maxPageSize
+                } else {
+                    pageSize
+                },
+                deserializeSort(jsonParser, sort)
             )
         } else {
-            throw MismatchedInputException.from(jsonParser, Pageable::class.java, "Cannot construct instance of `${Pageable::class.java.name}` from non-object value")
+            throw MismatchedInputException.from(
+                jsonParser,
+                Pageable::class.java,
+                "Cannot construct instance of `${Pageable::class.java.name}` from non-object value"
+            )
         }
     }
 
     private fun deserializeSort(jsonParser: JsonParser?, sortNode: JsonNode?) =
-            if (sortNode?.isArray == true)
-                Sort.by(
-                        sortNode.mapNotNull {
-                            val direction = Sort.Direction.valueOf(it.get("direction")?.asText() ?: "ASC")
-                            it.get("property")?.asText()?.let { property ->
-                                Sort.Order(direction, property)
-                            }
-                        }
-                )
-            else if (sortNode == null || sortNode.isNull)
-                Sort.unsorted()
-            else
-                throw JsonMappingException(jsonParser, "Property 'sort' has value that is not of type ArrayNode (but ${sortNode::class.java.name})")
+        if (sortNode?.isArray == true) {
+            Sort.by(
+                sortNode.mapNotNull {
+                    val direction = Sort.Direction.valueOf(it.get("direction")?.asText() ?: "ASC")
+                    it.get("property")?.asText()?.let { property ->
+                        Sort.Order(direction, property)
+                    }
+                }
+            )
+        } else if (sortNode == null || sortNode.isNull) {
+            Sort.unsorted()
+        } else {
+            throw JsonMappingException(
+                jsonParser,
+                "Property 'sort' has value that is not of type ArrayNode (but ${sortNode::class.java.name})"
+            )
+        }
 }

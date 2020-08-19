@@ -20,28 +20,30 @@ class JsonRpcSwaggerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(Docket::class, ApiSelectorBuilder::class)
-    fun docketAuto(jsonRpcConfigurationProperties: JsonRpcConfigurationProperties): Docket = Docket(DocumentationType.SWAGGER_2)
+    fun docketAuto(jsonRpcConfigurationProperties: JsonRpcConfigurationProperties): Docket =
+        Docket(DocumentationType.SWAGGER_2)
             .useDefaultResponseMessages(false)
             .select()
             .paths(PathSelectors.any())
             .apis(
-                    Predicates.or(
-                            RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
-                            RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
-                    )
+                Predicates.or(
+                    RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
+                    RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
+                )
             ).build()
 
     @Bean
     @ConditionalOnMissingBean(Docket::class)
     @ConditionalOnBean(ApiSelectorBuilder::class)
     fun docket(
-            apiSelectorBuilder: ApiSelectorBuilder,
-            jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
-    ): Docket = apiSelectorBuilder
+        apiSelectorBuilder: ApiSelectorBuilder,
+        jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
+    ): Docket =
+        apiSelectorBuilder
             .apis(
-                    Predicates.or(
-                            RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
-                            RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
-                    )
+                Predicates.or(
+                    RequestHandlerSelectors.basePackage(JsonRpcConfigurationProperties.JSON_RPC_BASE_PACKAGE),
+                    RequestHandlerSelectors.basePackage(jsonRpcConfigurationProperties.basePackage!!)
+                )
             ).build()
 }

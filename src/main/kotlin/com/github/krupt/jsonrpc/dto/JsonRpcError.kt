@@ -1,9 +1,9 @@
 package com.github.krupt.jsonrpc.dto
 
 data class JsonRpcError(
-        val code: Int = 0,
-        val message: String,
-        val data: Any? = null
+    val code: Int = 0,
+    val message: String,
+    val data: Any? = null
 ) {
 
     /**

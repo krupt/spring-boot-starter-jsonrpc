@@ -17,33 +17,34 @@ import springfox.documentation.service.ResolvedMethodParameter
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
+@Suppress("TooManyFunctions")
 class JsonRpcRequestHandler(
-        private val basePath: String,
-        private val beanName: String,
-        private val methodName: String,
-        private val method: Method
+    private val basePath: String,
+    private val beanName: String,
+    private val methodName: String,
+    private val method: Method
 ) : RequestHandler {
 
     companion object {
         private val typeResolver = TypeResolver()
         private val requestBodyAnnotation =
-                Proxy.newProxyInstance(
-                        RequestBody::class.java.classLoader,
-                        arrayOf(RequestBody::class.java)
-                ) { _, method, _ ->
-                    if (method.name == "required") {
-                        true
-                    } else {
-                        null
-                    }
-                } as RequestBody
+            Proxy.newProxyInstance(
+                RequestBody::class.java.classLoader,
+                arrayOf(RequestBody::class.java)
+            ) { _, method, _ ->
+                if (method.name == "required") {
+                    true
+                } else {
+                    null
+                }
+            } as RequestBody
     }
 
     override fun isAnnotatedWith(annotation: Class<out Annotation>) =
-            AnnotationUtils.findAnnotation(method, annotation) != null
+        AnnotationUtils.findAnnotation(method, annotation) != null
 
     override fun getPatternsCondition() =
-            PatternsRequestCondition("/$basePath/json-rpc/$methodName")
+        PatternsRequestCondition("/$basePath/json-rpc/$methodName")
 
     override fun groupName() = "[JSON-RPC] $beanName"
 
@@ -60,13 +61,13 @@ class JsonRpcRequestHandler(
     override fun params(): Set<NameValueExpression<String>> = emptySet()
 
     override fun <T : Annotation> findAnnotation(annotation: Class<T>): Optional<T> =
-            Optional.fromNullable(AnnotationUtils.findAnnotation(method, annotation))
+        Optional.fromNullable(AnnotationUtils.findAnnotation(method, annotation))
 
     override fun key() = RequestHandlerKey(
-            patternsCondition.patterns,
-            supportedMethods(),
-            consumes(),
-            produces()
+        patternsCondition.patterns,
+        supportedMethods(),
+        consumes(),
+        produces()
     )
 
     override fun getParameters(): List<ResolvedMethodParameter> {
@@ -74,24 +75,24 @@ class JsonRpcRequestHandler(
 
         return parameter?.let {
             listOf(ResolvedMethodParameter(
-                    0,
-                    it.name,
-                    it.annotations.asList() + requestBodyAnnotation,
-                    typeResolver.resolve(it.type)
+                0,
+                it.name,
+                it.annotations.asList() + requestBodyAnnotation,
+                typeResolver.resolve(it.type)
             ))
         } ?: emptyList()
     }
 
     override fun getReturnType(): ResolvedType =
-            typeResolver.resolve(method.genericReturnType)
+        typeResolver.resolve(method.genericReturnType)
 
     override fun <T : Annotation> findControllerAnnotation(annotation: Class<T>): Optional<T> =
-            Optional.fromNullable(AnnotationUtils.findAnnotation(method.declaringClass, annotation))
+        Optional.fromNullable(AnnotationUtils.findAnnotation(method.declaringClass, annotation))
 
     override fun declaringClass(): Class<*> = method.declaringClass
 
     override fun toString() =
-            "JsonRpcMethod($methodName)"
+        "JsonRpcMethod($methodName)"
 
     override fun getRequestMapping(): RequestMappingInfo {
         throw NotImplementedError("Deprecated")

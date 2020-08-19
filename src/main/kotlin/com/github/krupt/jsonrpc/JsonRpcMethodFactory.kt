@@ -10,28 +10,28 @@ import java.lang.reflect.Modifier
 
 @Component
 class JsonRpcMethodFactory(
-        beanFactory: ListableBeanFactory
+    beanFactory: ListableBeanFactory
 ) {
 
     // Map<methodName, jsonRpcMethodDefinition>
     val methods =
-            beanFactory.getBeansWithAnnotation(JsonRpcService::class.java)
-                    .map {
-                        ProxyUtils.getUserClass(it.value).methods
-                                .filter { method ->
-                                    Modifier.isPublic(method.modifiers)
-                                            && !Modifier.isStatic(method.modifiers)
-                                            && method.parameters.size <= 1
-                                            && method.declaringClass != Object::class.java
-                                            && !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
-                                }.map { method ->
-                                    "${it.key}.${method.name}" to JsonRpcMethodDefinition(it.key, it.value, method)
-                                }
-                    }.flatten().toMap()
+        beanFactory.getBeansWithAnnotation(JsonRpcService::class.java)
+            .map {
+                ProxyUtils.getUserClass(it.value).methods
+                    .filter { method ->
+                        Modifier.isPublic(method.modifiers) &&
+                            !Modifier.isStatic(method.modifiers) &&
+                            method.parameters.size <= 1 &&
+                            method.declaringClass != Object::class.java &&
+                            !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
+                    }.map { method ->
+                        "${it.key}.${method.name}" to JsonRpcMethodDefinition(it.key, it.value, method)
+                    }
+            }.flatten().toMap()
 }
 
 data class JsonRpcMethodDefinition(
-        val beanName: String,
-        val beanInstance: Any,
-        val method: Method
+    val beanName: String,
+    val beanInstance: Any,
+    val method: Method
 )

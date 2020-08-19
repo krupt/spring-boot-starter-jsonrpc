@@ -22,7 +22,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "page": 1,
                     "size": 50
                 }""".trimIndent()
@@ -36,7 +36,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize from null`() {
         val pageable = objectMapper.readValue<Pageable>(
-                "null"
+            "null"
         )
 
         pageable shouldBe null
@@ -45,7 +45,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize from empty object`() {
         val pageable = objectMapper.readValue<Pageable>(
-                "{}"
+            "{}"
         )
 
         pageable.pageNumber shouldBe 0
@@ -56,7 +56,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize without page size`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "page": 1
                 }""".trimIndent()
         )
@@ -69,7 +69,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize with size overriding`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "size": 10000
                 }""".trimIndent()
         )
@@ -83,26 +83,26 @@ internal class PageableDeserializerTest {
     fun `deserialization error with string`() {
         assertThrows<MismatchedInputException> {
             objectMapper.readValue<Pageable>(
-                    "\"hello\""
+                "\"hello\""
             )
         }.message shouldBe "Cannot construct instance of `${Pageable::class.java.name}` from non-object value\n" +
-                " at [Source: (String)\"\"hello\"\"; line: 1, column: 1]"
+            " at [Source: (String)\"\"hello\"\"; line: 1, column: 1]"
     }
 
     @Test
     fun `deserialization error with array`() {
         assertThrows<MismatchedInputException> {
             objectMapper.readValue<Pageable>(
-                    "[\"hello\"]"
+                "[\"hello\"]"
             )
         }.message shouldBe "Cannot construct instance of `${Pageable::class.java.name}` from non-object value\n" +
-                " at [Source: (String)\"[\"hello\"]\"; line: 1, column: 9]"
+            " at [Source: (String)\"[\"hello\"]\"; line: 1, column: 9]"
     }
 
     @Test
     fun `deserialize sort`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "sort": [
                         {
                             "property": "name",
@@ -122,13 +122,13 @@ internal class PageableDeserializerTest {
         pageable.pageNumber shouldBe 0
         pageable.pageSize shouldBe 20
         pageable.sort shouldBe Sort.by(Sort.Direction.DESC, "name", "date")
-                .and(Sort.by("amount"))
+            .and(Sort.by("amount"))
     }
 
     @Test
     fun `deserialize empty sort`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "sort": [
                         {
                         }
@@ -145,17 +145,18 @@ internal class PageableDeserializerTest {
     fun `sort deserialization error with boolean`() {
         assertThrows<JsonMappingException> {
             objectMapper.readValue<Pageable>(
-                    """{
+                """{
                     "sort": true
                 }""".trimIndent()
             )
-        }.message shouldStartWith "Property 'sort' has value that is not of type ArrayNode (but com.fasterxml.jackson.databind.node.BooleanNode)"
+        }.message shouldStartWith "Property 'sort' has value that is not of type ArrayNode " +
+            "(but com.fasterxml.jackson.databind.node.BooleanNode)"
     }
 
     @Test
     fun `deserialize sort with empty array`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "sort": []
                 }""".trimIndent()
         )
@@ -169,7 +170,7 @@ internal class PageableDeserializerTest {
     fun `deserialization error with unknown direction`() {
         assertThrows<Exception> {
             objectMapper.readValue<Pageable>(
-                    """{
+                """{
                     "sort": [
                         {
                             "direction": "UNKNOWN"
@@ -183,7 +184,7 @@ internal class PageableDeserializerTest {
     @Test
     fun `deserialize sort with null`() {
         val pageable = objectMapper.readValue<Pageable>(
-                """{
+            """{
                     "sort": null
                 }""".trimIndent()
         )

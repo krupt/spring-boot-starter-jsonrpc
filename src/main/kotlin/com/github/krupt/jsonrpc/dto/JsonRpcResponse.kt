@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class JsonRpcResponse<T>(
 
-        val id: Any = 1,
+    val id: Any = 1,
 
-        val result: T? = null,
+    val result: T? = null,
 
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        val error: JsonRpcError? = null,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val error: JsonRpcError? = null,
 
-        @JsonProperty("jsonrpc")
-        val jsonRpc: String = "2.0"
+    @JsonProperty("jsonrpc")
+    val jsonRpc: String = "2.0"
 )

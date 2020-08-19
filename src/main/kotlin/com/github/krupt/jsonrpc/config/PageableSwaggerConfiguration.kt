@@ -17,43 +17,45 @@ import springfox.documentation.spring.web.plugins.Docket
 @ConditionalOnClass(Pageable::class)
 @Profile("!prod")
 class PageableSwaggerConfiguration(
-        private val docket: Docket,
-        private val typeResolver: TypeResolver
+    private val docket: Docket,
+    private val typeResolver: TypeResolver
 ) : InitializingBean {
 
     override fun afterPropertiesSet() {
         docket.alternateTypeRules(
-                AlternateTypeRules.newRule(
-                        typeResolver.resolve(Pageable::class.java),
-                        pageableType(),
-                        Ordered.HIGHEST_PRECEDENCE
-                )
+            AlternateTypeRules.newRule(
+                typeResolver.resolve(Pageable::class.java),
+                pageableType(),
+                Ordered.HIGHEST_PRECEDENCE
+            )
         )
     }
 
     private fun pageableType() =
-            AlternateTypeBuilder()
-                    .fullyQualifiedClassName("${Pageable::class.java.`package`.name}.swagger.${Pageable::class.java.simpleName}")
-                    .property(
-                            AlternateTypePropertyBuilder()
-                                    .withName("page")
-                                    .withType(Int::class.java)
-                                    .withCanRead(true)
-                                    .withCanWrite(true)
-                    ).property(
-                            AlternateTypePropertyBuilder()
-                                    .withName("size")
-                                    .withType(Int::class.java)
-                                    .withCanRead(true)
-                                    .withCanWrite(true)
-                    ).property(
-                            AlternateTypePropertyBuilder()
-                                    .withName("sort")
-                                    .withType(SortList::class.java)
-                                    .withCanRead(true)
-                                    .withCanWrite(true)
-                    )
-                    .build()
+        AlternateTypeBuilder()
+            .fullyQualifiedClassName(
+                "${Pageable::class.java.`package`.name}.swagger.${Pageable::class.java.simpleName}"
+            )
+            .property(
+                AlternateTypePropertyBuilder()
+                    .withName("page")
+                    .withType(Int::class.java)
+                    .withCanRead(true)
+                    .withCanWrite(true)
+            ).property(
+                AlternateTypePropertyBuilder()
+                    .withName("size")
+                    .withType(Int::class.java)
+                    .withCanRead(true)
+                    .withCanWrite(true)
+            ).property(
+                AlternateTypePropertyBuilder()
+                    .withName("sort")
+                    .withType(SortList::class.java)
+                    .withCanRead(true)
+                    .withCanWrite(true)
+            )
+            .build()
 }
 
 abstract class SortList : List<Sort>
@@ -62,6 +64,7 @@ abstract class SortList : List<Sort>
 class Sort {
 
     lateinit var property: String
+
     @ApiModelProperty(required = false)
     var direction: org.springframework.data.domain.Sort.Direction = org.springframework.data.domain.Sort.Direction.ASC
 }

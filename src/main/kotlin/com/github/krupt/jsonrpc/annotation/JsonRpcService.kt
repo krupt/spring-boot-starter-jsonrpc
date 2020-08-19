@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service
 @Service
 annotation class JsonRpcService(
 
-        /**
-         * @see  Service.value
-         */
-        @Suppress("unused")
-        @get:AliasFor(annotation = Service::class)
-        val value: String = ""
+    /**
+     * @see Service.value
+     */
+    @Suppress("unused")
+    @get:AliasFor(annotation = Service::class)
+    val value: String = ""
 )

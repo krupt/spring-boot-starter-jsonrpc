@@ -42,9 +42,11 @@ class ServiceWithOnlyHiddenMethods {
 
     @NoJsonRpcMethod
     fun hidden(request: TestRequest) {
+        // Test
     }
 
     private fun internal(request: TestRequest) {
+        // Test
     }
 }
 

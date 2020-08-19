@@ -16,7 +16,7 @@ import java.util.UUID
 
 @JsonRpcService
 class TestService(
-        private val testRunnable: Runnable
+    private val testRunnable: Runnable
 ) {
 
     @Cacheable("users")
@@ -47,22 +47,22 @@ class TestService(
     fun list(count: Int): List<TestUser> = emptyList()
 
     fun pageable(pageable: Pageable) =
-            TestPage(
-                    pageable.pageNumber,
-                    pageable.pageSize,
-                    pageable.sort.map {
-                        TestSort(it.property, it.direction)
-                    }.toList()
-            )
+        TestPage(
+            pageable.pageNumber,
+            pageable.pageSize,
+            pageable.sort.map {
+                TestSort(it.property, it.direction)
+            }.toList()
+        )
 
     fun pageableWrapper(request: TestPageableRequest) =
-            TestPage(
-                    request.pageable.pageNumber,
-                    request.pageable.pageSize,
-                    request.pageable.sort.map {
-                        TestSort(it.property, it.direction)
-                    }.toList()
-            )
+        TestPage(
+            request.pageable.pageNumber,
+            request.pageable.pageSize,
+            request.pageable.sort.map {
+                TestSort(it.property, it.direction)
+            }.toList()
+        )
 
     fun reThrowingException() {
         throw ReThrowingException("Error")

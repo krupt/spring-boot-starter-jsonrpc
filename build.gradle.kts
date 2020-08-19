@@ -1,12 +1,14 @@
+import io.gitlab.arturbosch.detekt.detekt
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.40"
-    kotlin("plugin.spring") version "1.3.40"
-    kotlin("kapt") version "1.3.40"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
+    kotlin("jvm") version "1.3.72"
+    kotlin("plugin.spring") version "1.3.72"
+    kotlin("kapt") version "1.3.72"
+    id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("io.gitlab.arturbosch.detekt") version "1.11.1"
 
     id("org.jetbrains.dokka") version "0.9.18"
     `maven-publish`
@@ -14,24 +16,30 @@ plugins {
 }
 
 group = "com.github.krupt"
-version = "0.8.2"
+version = "0.8.3-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-parent:2.1.5.RELEASE") {
-            bomProperty("kotlin.version", "1.3.40")
+        mavenBom("org.springframework.boot:spring-boot-parent:2.3.3.RELEASE") {
+            bomProperty("kotlin.version", "1.3.72")
         }
     }
 }
 
 repositories {
     mavenCentral()
+    jcenter {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
+    }
     maven(url = "https://dl.bintray.com/kotlin/dokka")
 }
 
 dependencies {
     api("org.springframework.boot:spring-boot-starter-web")
+    api("org.springframework.boot:spring-boot-starter-validation")
 //	implementation("org.springframework.boot:spring-boot-starter-webflux")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
@@ -42,14 +50,14 @@ dependencies {
     api("io.springfox:springfox-swagger2:2.9.2")
     api("io.springfox:springfox-swagger-ui:2.9.2")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude("junit")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
     testImplementation("com.ninja-squad:springmockk:1.1.2")
     testImplementation("org.springframework.data:spring-data-commons")
 //	testImplementation("io.projectreactor:reactor-test")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -58,6 +66,7 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "1.8"
         javaParameters = true
     }
+    dependsOn("detekt")
 }
 
 tasks.withType<Test> {
@@ -66,6 +75,13 @@ tasks.withType<Test> {
         exceptionFormat = TestExceptionFormat.FULL
         showStandardStreams = true
     }
+}
+
+detekt {
+    toolVersion = "1.11.1"
+    input = files("src/main/kotlin", "src/test/kotlin")
+    config = files("detekt.yml")
+    buildUponDefaultConfig = true
 }
 
 tasks.withType<DokkaTask> {

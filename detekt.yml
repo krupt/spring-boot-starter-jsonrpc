@@ -1,0 +1,8 @@
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    excludes: "**/test/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
+  LargeClass:
+    excludes: "**/test/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"

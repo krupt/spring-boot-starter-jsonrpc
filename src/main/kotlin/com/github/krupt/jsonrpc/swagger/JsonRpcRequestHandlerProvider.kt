@@ -13,8 +13,8 @@ import springfox.documentation.spi.service.RequestHandlerProvider
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Profile("!prod")
 class JsonRpcRequestHandlerProvider(
-        jsonRpcMethodFactory: JsonRpcMethodFactory,
-        jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
+    jsonRpcMethodFactory: JsonRpcMethodFactory,
+    jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
 ) : RequestHandlerProvider {
 
     private val methods = jsonRpcMethodFactory.methods.map {

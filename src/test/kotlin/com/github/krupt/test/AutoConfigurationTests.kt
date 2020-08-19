@@ -35,50 +35,50 @@ internal class AutoConfigurationTests {
 
         @Bean
         fun docketApiSelectionBuilder(): ApiSelectorBuilder =
-                Docket(DocumentationType.SWAGGER_2)
-                        .apiInfo(ApiInfo(
-                                "Test title",
-                                "Test description",
-                                "Test version",
-                                "Test terms",
-                                Contact(
-                                        "krupt",
-                                        "https://github.com/krupt",
-                                        "krupt25@gmail.com"
-                                ),
-                                "Apache 2.0",
-                                null,
-                                emptyList()
-                        ))
-                        .useDefaultResponseMessages(false)
-                        .select()
-                        .paths(PathSelectors.any())
+            Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(ApiInfo(
+                    "Test title",
+                    "Test description",
+                    "Test version",
+                    "Test terms",
+                    Contact(
+                        "krupt",
+                        "https://github.com/krupt",
+                        "krupt25@gmail.com"
+                    ),
+                    "Apache 2.0",
+                    null,
+                    emptyList()
+                ))
+                .useDefaultResponseMessages(false)
+                .select()
+                .paths(PathSelectors.any())
     }
 
     @Test
     fun `application starts and returns custom swagger docket info`() {
         val response = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
         response["info"] as Map<String, Any?> shouldContainExactly mapOf(
-                "title" to "Test title",
-                "description" to "Test description",
-                "version" to "Test version",
-                "termsOfService" to "Test terms",
-                "license" to mapOf(
-                        "name" to "Apache 2.0"
-                ),
-                "contact" to mapOf(
-                        "name" to "krupt",
-                        "url" to "https://github.com/krupt",
-                        "email" to "krupt25@gmail.com"
-                )
+            "title" to "Test title",
+            "description" to "Test description",
+            "version" to "Test version",
+            "termsOfService" to "Test terms",
+            "license" to mapOf(
+                "name" to "Apache 2.0"
+            ),
+            "contact" to mapOf(
+                "name" to "krupt",
+                "url" to "https://github.com/krupt",
+                "email" to "krupt25@gmail.com"
+            )
         )
     }
 
     @Test
     fun `application starts and returns swagger page`() {
         restTemplate.getForObject<String>(
-                "http://localhost:$port/swagger-ui.html"
+            "http://localhost:$port/swagger-ui.html"
         )!! shouldContain
-                """<script src="swagger-json-rpc-plugin.js"> </script>"""
+            """<script src="swagger-json-rpc-plugin.js"> </script>"""
     }
 }
