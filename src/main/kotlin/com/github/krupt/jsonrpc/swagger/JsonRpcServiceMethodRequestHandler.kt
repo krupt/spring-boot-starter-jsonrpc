@@ -18,7 +18,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
 @Suppress("TooManyFunctions")
-class JsonRpcRequestHandler(
+open class JsonRpcServiceMethodRequestHandler(
     private val basePath: String,
     private val beanName: String,
     private val methodName: String,
@@ -72,14 +72,19 @@ class JsonRpcRequestHandler(
 
     override fun getParameters(): List<ResolvedMethodParameter> {
         val parameter = method.parameters.firstOrNull()
+            ?.takeIf {
+                it.type != Unit::class.java
+            }
 
         return parameter?.let {
-            listOf(ResolvedMethodParameter(
-                0,
-                it.name,
-                it.annotations.asList() + requestBodyAnnotation,
-                typeResolver.resolve(it.type)
-            ))
+            listOf(
+                ResolvedMethodParameter(
+                    0,
+                    it.name,
+                    it.annotations.asList() + requestBodyAnnotation,
+                    typeResolver.resolve(it.type)
+                )
+            )
         } ?: emptyList()
     }
 

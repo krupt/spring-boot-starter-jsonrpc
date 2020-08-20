@@ -1,5 +1,8 @@
-spring.jsonrpc:
-  path: testApi
-  basePackage: com.github.krupt.test
+spring:
+  profiles:
+    active: swagger
+  jsonrpc:
+    path: testApi
+    basePackage: com.github.krupt.test
 
 logging.level.root: DEBUG

@@ -1,6 +1,6 @@
 package com.github.krupt.jsonrpc.swagger
 
-import com.github.krupt.jsonrpc.JsonRpcMethodFactory
+import com.github.krupt.jsonrpc.JsonRpcMethod
 import com.github.krupt.jsonrpc.config.JsonRpcConfigurationProperties
 import org.springframework.context.annotation.Profile
 import org.springframework.core.Ordered
@@ -11,14 +11,18 @@ import springfox.documentation.spi.service.RequestHandlerProvider
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Profile("!prod")
-class JsonRpcRequestHandlerProvider(
-    jsonRpcMethodFactory: JsonRpcMethodFactory,
+@Profile("swagger")
+class JsonRpcMethodRequestHandlerProvider(
+    jsonRpcMethodImpls: Map<String, JsonRpcMethod<*, *>>,
     jsonRpcConfigurationProperties: JsonRpcConfigurationProperties
 ) : RequestHandlerProvider {
 
-    private val methods = jsonRpcMethodFactory.methods.map {
-        JsonRpcRequestHandler(jsonRpcConfigurationProperties.path, it.value.beanName, it.key, it.value.method)
+    private val methods = jsonRpcMethodImpls.map {
+        JsonRpcMethodRequestHandler(
+            jsonRpcConfigurationProperties.path,
+            it.key,
+            it.value
+        )
     }
 
     override fun requestHandlers(): List<RequestHandler> {

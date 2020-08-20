@@ -10,6 +10,6 @@ data class JsonRpcRequest<T>(
     val method: String,
     val params: T?,
     @JsonProperty("jsonrpc")
-    @field:Pattern(regexp = """2\.0""")
+    @field:Pattern(regexp = """^2\.0$""")
     val jsonRpc: String
 )
