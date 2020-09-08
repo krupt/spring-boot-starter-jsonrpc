@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.github.krupt"
-version = "0.8.3-SNAPSHOT"
+version = "1.0.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {
@@ -40,7 +40,6 @@ repositories {
 dependencies {
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
-//	implementation("org.springframework.boot:spring-boot-starter-webflux")
     api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -55,7 +54,6 @@ dependencies {
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
     testImplementation("com.ninja-squad:springmockk:1.1.2")
     testImplementation("org.springframework.data:spring-data-commons")
-//	testImplementation("io.projectreactor:reactor-test")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.1")
 }
@@ -66,7 +64,6 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "1.8"
         javaParameters = true
     }
-    dependsOn("detekt")
 }
 
 tasks.withType<Test> {
@@ -76,6 +73,8 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
 }
+
+tasks.findByName("build")?.dependsOn("detekt")
 
 detekt {
     toolVersion = "1.11.1"

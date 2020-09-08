@@ -329,7 +329,108 @@ class SwaggerTests {
             "/testApi/json-rpc/testService.pageableWrapper",
             "/testApi/json-rpc/testService.process",
             "/testApi/json-rpc/testService.processAsync",
-            "/testApi/json-rpc/testService.reThrowingException"
+            "/testApi/json-rpc/testService.reThrowingException",
+            "/testApi/json-rpc/method.test",
+            "/testApi/json-rpc/method.testMethodWithoutInput",
+            "/testApi/json-rpc/method.testMethodWithoutResult",
+            "/testApi/json-rpc/method.testMethodWithException"
+        )
+
+        (apiDocs["tags"]!! as List<Map<String, String>>)
+            .map {
+                it["name"]
+            } shouldContainExactlyInAnyOrder listOf(
+            "[JSON-RPC] customTestService",
+            "[JSON-RPC] method",
+            "[JSON-RPC] testService",
+            "json-rpc-controller"
+        )
+    }
+
+    @Test
+    fun `api documentation for simple json rpc method`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/method.test") as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+            "tags" to listOf("[JSON-RPC] method"),
+            "summary" to "test",
+            "operationId" to "testUsingPOST_1",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "input",
+                "description" to "input",
+                "required" to true,
+                "schema" to mapOf(
+                    "type" to "string",
+                    "format" to "uuid"
+                )
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestState")
+                )
+            ),
+            "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `api documentation for json rpc method without parameters`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/method.testMethodWithoutInput")
+            as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+            "tags" to listOf("[JSON-RPC] method"),
+            "summary" to "testMethodWithoutInput",
+            "operationId" to "testMethodWithoutInputUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestState")
+                )
+            ),
+            "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `api documentation for json rpc method without return`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/method.testMethodWithoutResult")
+            as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+            "tags" to listOf("[JSON-RPC] method"),
+            "summary" to "testMethodWithoutResult",
+            "operationId" to "testMethodWithoutResultUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "input",
+                "description" to "input",
+                "required" to true,
+                "schema" to mapOf(
+                    "type" to "string",
+                    "format" to "uuid"
+                )
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK"
+                )
+            ),
+            "deprecated" to false
         )
     }
 }

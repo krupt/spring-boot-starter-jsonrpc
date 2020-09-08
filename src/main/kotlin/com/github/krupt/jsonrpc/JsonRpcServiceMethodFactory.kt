@@ -9,7 +9,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
 @Component
-class JsonRpcMethodFactory(
+class JsonRpcServiceMethodFactory(
     beanFactory: ListableBeanFactory
 ) {
 
@@ -25,12 +25,12 @@ class JsonRpcMethodFactory(
                             method.declaringClass != Object::class.java &&
                             !method.isAnnotationPresent(NoJsonRpcMethod::class.java)
                     }.map { method ->
-                        "${it.key}.${method.name}" to JsonRpcMethodDefinition(it.key, it.value, method)
+                        "${it.key}.${method.name}" to JsonRpcServiceMethodDefinition(it.key, it.value, method)
                     }
             }.flatten().toMap()
 }
 
-data class JsonRpcMethodDefinition(
+data class JsonRpcServiceMethodDefinition(
     val beanName: String,
     val beanInstance: Any,
     val method: Method

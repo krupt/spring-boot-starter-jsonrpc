@@ -3,7 +3,8 @@ package com.github.krupt.jsonrpc.web.rest
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import com.github.krupt.jsonrpc.JsonRpcMethodFactory
+import com.github.krupt.jsonrpc.JsonRpcMethod
+import com.github.krupt.jsonrpc.JsonRpcServiceMethodFactory
 import com.github.krupt.jsonrpc.dto.JsonRpcError
 import com.github.krupt.jsonrpc.dto.JsonRpcRequest
 import com.github.krupt.jsonrpc.dto.JsonRpcResponse
@@ -24,7 +25,8 @@ import java.lang.reflect.Method
 
 @RestController
 class JsonRpcController(
-    jsonRpcMethodFactory: JsonRpcMethodFactory,
+    jsonRpcServiceMethodFactory: JsonRpcServiceMethodFactory,
+    jsonRpcMethodImpls: Map<String, JsonRpcMethod<*, *>>,
     private val exceptionHandler: JsonRpcExceptionHandler,
     private val objectMapper: ObjectMapper,
     private val validator: Validator
@@ -32,18 +34,17 @@ class JsonRpcController(
 
     @Suppress("UNCHECKED_CAST")
     private val methods =
-        jsonRpcMethodFactory.methods.mapValues {
+        jsonRpcServiceMethodFactory.methods.mapValues {
             val (_, instance, method) = it.value
 
-            // For best performance
-            method.isAccessible = true
-
-            MethodInvocation(
-                method.parameters.firstOrNull()?.type as Class<Any>?,
+            ServiceMethodInvocation(
                 method,
                 instance
             )
-        }
+        } +
+            jsonRpcMethodImpls.mapValues {
+                JsonRpcMethodInvocation(it.value as JsonRpcMethod<Any?, Any?>)
+            }
 
     @PostMapping("\${spring.jsonrpc.path:}")
     @ApiOperation(
@@ -174,15 +175,44 @@ class JsonRpcController(
         )
 }
 
-data class MethodInvocation(
-    val inputType: Class<Any>?,
+interface MethodInvocation {
+
+    val inputType: Class<Any>?
+
+    fun invoke(args: Any?): Any?
+}
+
+class ServiceMethodInvocation(
     private val method: Method,
     private val instance: Any
-) {
+) : MethodInvocation {
 
-    fun invoke(args: Any?): Any? = if (inputType != null) {
+    override val inputType = method.parameters.firstOrNull()?.type as Class<Any>?
+
+    init {
+        // For best performance
+        method.isAccessible = true
+    }
+
+    override fun invoke(args: Any?): Any? = if (inputType != null) {
         method.invoke(instance, args)
     } else {
         method.invoke(instance)
     }
+}
+
+class JsonRpcMethodInvocation(
+    private val instance: JsonRpcMethod<Any?, Any?>
+) : MethodInvocation {
+
+    override val inputType = instance.javaClass.methods.first {
+        it.name == "invoke" && !it.isBridge && !it.isSynthetic
+    }
+        .parameters.first().type.takeIf {
+            it != Unit::class.java
+        } as Class<Any>?
+
+    override fun invoke(args: Any?) =
+        instance.invoke(args ?: Unit)
+            .takeIf { it !is Unit }
 }

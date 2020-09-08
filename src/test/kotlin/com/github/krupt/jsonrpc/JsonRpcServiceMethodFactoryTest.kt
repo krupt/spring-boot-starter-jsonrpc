@@ -12,25 +12,25 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.util.UUID
 
 @SpringBootTest(classes = [
-    JsonRpcMethodFactory::class,
+    JsonRpcServiceMethodFactory::class,
     ServiceWithoutMethods::class,
     ServiceWithOnlyHiddenMethods::class,
     TestServiceWithCustomComponentName::class
 ])
-internal class JsonRpcMethodFactoryTest {
+internal class JsonRpcServiceMethodFactoryTest {
 
     @Autowired
-    private lateinit var jsonRpcMethodFactory: JsonRpcMethodFactory
+    private lateinit var jsonRpcServiceMethodFactory: JsonRpcServiceMethodFactory
 
     @Test
     fun `factory doesn't collect hidden methods`() {
-        jsonRpcMethodFactory.methods shouldNotContainKey "serviceWithOnlyHiddenMethods.test"
+        jsonRpcServiceMethodFactory.methods shouldNotContainKey "serviceWithOnlyHiddenMethods.test"
     }
 
     @Test
     fun `factory doesn't fail when collecting services without suitable methods`() {
-        jsonRpcMethodFactory.methods.size shouldBe 1
-        jsonRpcMethodFactory.methods shouldContainKey "customTestService.test"
+        jsonRpcServiceMethodFactory.methods.size shouldBe 1
+        jsonRpcServiceMethodFactory.methods shouldContainKey "customTestService.test"
     }
 }
 

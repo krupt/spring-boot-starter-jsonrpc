@@ -15,7 +15,7 @@ import springfox.documentation.spring.web.plugins.Docket
 
 @Configuration
 @ConditionalOnClass(Pageable::class)
-@Profile("!prod")
+@Profile("swagger")
 class PageableSwaggerConfiguration(
     private val docket: Docket,
     private val typeResolver: TypeResolver

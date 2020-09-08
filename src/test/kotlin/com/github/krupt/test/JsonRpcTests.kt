@@ -10,6 +10,7 @@ import com.github.krupt.test.dto.TestRequest
 import com.github.krupt.test.dto.TestResponse
 import com.github.krupt.test.model.TestPage
 import com.github.krupt.test.model.TestSort
+import com.github.krupt.test.model.TestState
 import com.github.krupt.test.model.TestUser
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.shouldBe
@@ -253,6 +254,73 @@ internal class JsonRpcTests {
                 437,
                 listOf(
                     TestSort("username", Sort.Direction.ASC)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `application calls simple json rpc method with simple param and returns result`() {
+        val testId = UUID.randomUUID()
+        call<TestState>(
+            JsonRpcRequest(
+                "12345U",
+                "method.test",
+                testId,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "12345U",
+            TestState(testId.toString())
+        )
+    }
+
+    @Test
+    fun `application calls json rpc method without parameter`() {
+        call<TestState>(
+            JsonRpcRequest(
+                "342423324",
+                "method.testMethodWithoutInput",
+                null,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "342423324",
+            TestState("Test")
+        )
+    }
+
+    @Test
+    fun `application calls json rpc method with empty result`() {
+        call<Any>(
+            JsonRpcRequest(
+                "342423324",
+                "method.testMethodWithoutResult",
+                UUID.randomUUID(),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "342423324",
+            null
+        )
+    }
+
+    @Test
+    fun `application calls json rpc method that throwing exception`() {
+        call<Any>(
+            JsonRpcRequest(
+                mapOf("id" to 6709),
+                "method.testMethodWithException",
+                "krupt",
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            mapOf("id" to 6709),
+            error = JsonRpcError(
+                -29345,
+                "Test state is incorrect",
+                mapOf(
+                    "userId" to "krupt"
                 )
             )
         )
