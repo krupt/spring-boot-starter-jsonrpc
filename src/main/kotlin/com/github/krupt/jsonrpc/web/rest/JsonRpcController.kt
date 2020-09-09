@@ -205,14 +205,28 @@ class JsonRpcMethodInvocation(
     private val instance: JsonRpcMethod<Any?, Any?>
 ) : MethodInvocation {
 
-    override val inputType = instance.javaClass.methods.first {
-        it.name == "invoke" && !it.isBridge && !it.isSynthetic
+    private val isVoid: Boolean
+
+    override val inputType: Class<Any>?
+
+    init {
+        val inputType = instance.javaClass.methods.first {
+            it.name == "invoke" && !it.isBridge && !it.isSynthetic
+        }
+            .parameters.first().type.takeIf {
+                it != Unit::class.java
+            } as Class<Any>?
+
+        this.inputType = if (inputType == Void::class.java) {
+            isVoid = true
+            null
+        } else {
+            isVoid = false
+            inputType
+        }
     }
-        .parameters.first().type.takeIf {
-            it != Unit::class.java
-        } as Class<Any>?
 
     override fun invoke(args: Any?) =
-        instance.invoke(args ?: Unit)
+        instance.invoke(args ?: if (isVoid) null else Unit)
             .takeIf { it !is Unit }
 }

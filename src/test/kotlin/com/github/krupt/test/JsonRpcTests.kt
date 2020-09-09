@@ -326,6 +326,36 @@ internal class JsonRpcTests {
         )
     }
 
+    @Test
+    fun `application calls java json rpc method without parameter`() {
+        call<TestState>(
+            JsonRpcRequest(
+                "342423324",
+                "method.testJavaMethodWithoutInput",
+                null,
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "342423324",
+            TestState("Test")
+        )
+    }
+
+    @Test
+    fun `application calls java json rpc method with empty result`() {
+        call<Any>(
+            JsonRpcRequest(
+                "342423324",
+                "method.testJavaMethodWithoutResult",
+                UUID.randomUUID(),
+                "2.0"
+            )
+        ) shouldBe JsonRpcResponse(
+            "342423324",
+            null
+        )
+    }
+
     private inline fun <reified R> call(request: JsonRpcRequest<Any>): JsonRpcResponse<R>? {
         val rawResponse: JsonRpcResponse<Map<String, Any?>>? = restTemplate.postForObject(
             "http://localhost:$port/${jsonRpcConfigurationProperties.path}",

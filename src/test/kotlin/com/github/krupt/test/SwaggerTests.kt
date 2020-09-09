@@ -333,7 +333,9 @@ class SwaggerTests {
             "/testApi/json-rpc/method.test",
             "/testApi/json-rpc/method.testMethodWithoutInput",
             "/testApi/json-rpc/method.testMethodWithoutResult",
-            "/testApi/json-rpc/method.testMethodWithException"
+            "/testApi/json-rpc/method.testMethodWithException",
+            "/testApi/json-rpc/method.testJavaMethodWithoutInput",
+            "/testApi/json-rpc/method.testJavaMethodWithoutResult"
         )
 
         (apiDocs["tags"]!! as List<Map<String, String>>)
@@ -413,6 +415,61 @@ class SwaggerTests {
             "tags" to listOf("[JSON-RPC] method"),
             "summary" to "testMethodWithoutResult",
             "operationId" to "testMethodWithoutResultUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "parameters" to listOf(mapOf(
+                "in" to "body",
+                "name" to "input",
+                "description" to "input",
+                "required" to true,
+                "schema" to mapOf(
+                    "type" to "string",
+                    "format" to "uuid"
+                )
+            )),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK"
+                )
+            ),
+            "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `api documentation for java json rpc method without parameters`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/method.testJavaMethodWithoutInput")
+            as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+            "tags" to listOf("[JSON-RPC] method"),
+            "summary" to "testJavaMethodWithoutInput",
+            "operationId" to "testJavaMethodWithoutInputUsingPOST",
+            "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
+            "responses" to mapOf(
+                "200" to mapOf(
+                    "description" to "OK",
+                    "schema" to mapOf("\$ref" to "#/definitions/TestState")
+                )
+            ),
+            "deprecated" to false
+        )
+    }
+
+    @Test
+    fun `api documentation for java json rpc method without return`() {
+        val apiDocs = restTemplate.getForObject<Map<String, Any?>>("http://localhost:$port/v2/api-docs")!!
+        val processMethodInfo = (apiDocs.getValue("paths") as Map<String, Any?>)
+            .getValue("/${jsonRpcConfigurationProperties.path}/json-rpc/method.testJavaMethodWithoutResult")
+            as Map<String, Any?>
+
+        processMethodInfo["post"] as Map<String, Any?> shouldContainExactly mapOf(
+            "tags" to listOf("[JSON-RPC] method"),
+            "summary" to "testJavaMethodWithoutResult",
+            "operationId" to "testJavaMethodWithoutResultUsingPOST",
             "consumes" to listOf(MediaType.APPLICATION_JSON_VALUE),
             "produces" to listOf(MediaType.APPLICATION_JSON_VALUE),
             "parameters" to listOf(mapOf(

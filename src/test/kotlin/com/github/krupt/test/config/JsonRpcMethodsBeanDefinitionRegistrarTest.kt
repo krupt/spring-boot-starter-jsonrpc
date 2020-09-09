@@ -18,7 +18,9 @@ internal class JsonRpcMethodsBeanDefinitionRegistrarTest {
             "method.test",
             "method.testMethodWithoutResult",
             "method.testMethodWithoutInput",
-            "method.testMethodWithException"
+            "method.testMethodWithException",
+            "method.testJavaMethodWithoutInput",
+            "method.testJavaMethodWithoutResult"
         )
     }
 }

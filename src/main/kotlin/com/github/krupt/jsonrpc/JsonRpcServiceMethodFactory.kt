@@ -2,8 +2,8 @@ package com.github.krupt.jsonrpc
 
 import com.github.krupt.jsonrpc.annotation.JsonRpcService
 import com.github.krupt.jsonrpc.annotation.NoJsonRpcMethod
+import org.springframework.aop.support.AopUtils
 import org.springframework.beans.factory.ListableBeanFactory
-import org.springframework.data.util.ProxyUtils
 import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -17,7 +17,7 @@ class JsonRpcServiceMethodFactory(
     val methods =
         beanFactory.getBeansWithAnnotation(JsonRpcService::class.java)
             .map {
-                ProxyUtils.getUserClass(it.value).methods
+                AopUtils.getTargetClass(it.value).methods
                     .filter { method ->
                         Modifier.isPublic(method.modifiers) &&
                             !Modifier.isStatic(method.modifiers) &&
