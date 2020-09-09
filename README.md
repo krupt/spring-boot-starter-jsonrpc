@@ -51,6 +51,21 @@ public class UserService {
 
 All the public methods with one or none parameters are collected by JSON RPC Engine and can be accessed through HTTP API. If you want to hide beans' public methods, you need to mark the target method with `@NoJsonRpcMethod` annotation.
 
+The other way to expose methods is implementing `com.github.krupt.jsonrpc.JsonRpcMethod` interface.
+ 
+Example:
+```java
+package com.github.krupt.web.jsonrpc.user;
+
+public class GetAllMethod implements JsonRpcMethod<Void, List<User>> {
+
+    public List<User> invoke(Void input) {
+        ...
+    }
+}
+```
+, that will be exposed as `user.getAll` method.
+
 If you want specific exception handling, add bean that implements com.github.krupt.jsonrpc.exception.JsonRpcExceptionHandler.
 
 ---
@@ -58,6 +73,8 @@ If you want specific exception handling, add bean that implements com.github.kru
 There are some Gradle projects that demonstrate typical use cases with and features available in the Spring Boot JSON-RPC Starter:
 * [Kotlin](https://github.com/krupt/spring-boot-starter-jsonrpc-example)
 * [Java](https://github.com/krupt/spring-boot-starter-jsonrpc-example-java)
+
+For adding methods to Swagger don't forget to enable `swagger` profile for your application.
 
 In these projects Swagger's documentation looks like this:
 
@@ -68,7 +85,3 @@ In these projects Swagger's documentation looks like this:
 ![Trying JSON-RPC method](https://github.com/krupt/spring-boot-starter-jsonrpc/raw/master/images/method_trying.png)
 
 ---
-
-## Road map ##
-* Add support for Spring Web Flux
-* Add more clear option to develop and understand methods using JsonRpcMethod interface
