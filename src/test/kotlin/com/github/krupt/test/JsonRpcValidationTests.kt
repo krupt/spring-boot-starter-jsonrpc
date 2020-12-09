@@ -6,11 +6,7 @@ import com.github.krupt.jsonrpc.dto.JsonRpcResponse
 import com.ninjasquad.springmockk.MockkBean
 import io.kotlintest.matchers.maps.shouldContainExactly
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.assertj.core.error.ShouldMatchPattern.shouldMatch
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -84,20 +80,13 @@ internal class JsonRpcValidationTests {
                 """.trimIndent()
         )!!
 
-        assertAll(
-            { response.id shouldBe 1 },
-//                { response.id shouldBe "234" },
-            { response.result shouldBe null },
-            { response.error shouldNotBe null },
-            { response.error!!.code shouldBe JsonRpcError.INVALID_REQUEST },
-            { response.error!!.message shouldBe "Invalid request" },
-            {
-                val errorMessage = response.error!!.data as String
-                shouldMatch(
-                    errorMessage,
-                    """.* value failed for JSON property jsonrpc due to missing \(therefore NULL\) .*"""
-                )
-            }
+        response shouldBe JsonRpcResponse(
+            id = 1, // "234",
+            error = JsonRpcError(
+                JsonRpcError.INVALID_REQUEST,
+                "Invalid request",
+                "jsonrpc must not be null"
+            )
         )
     }
 
@@ -113,36 +102,16 @@ internal class JsonRpcValidationTests {
                 """.trimIndent()
         )!!
 
-        assertAll(
-            { response.id shouldBe "123" },
-            { response.result shouldBe null },
-            { response.error shouldNotBe null },
-            { response.error!!.code shouldBe JsonRpcError.INVALID_REQUEST },
-            { response.error!!.message shouldBe "Invalid request" },
-            {
-                @Suppress("UNCHECKED_CAST")
-                val validationErrors = (response.error!!.data as List<String>)
-                    .map {
-                        it.substringAfter("on field '").substringBefore('\'') to it
-                    }.toMap()
-                validationErrors.size shouldBe 2
-                assertAll(
-                    {
-                        shouldMatch(
-                            validationErrors["jsonRpc"]!!,
-                            """Field error in object 'jsonRpcRequest' on field 'jsonRpc': 
-|rejected value \[2.1]; codes \[Pattern.*""".trimMargin()
-                        )
-                    },
-                    {
-                        shouldMatch(
-                            validationErrors["method"]!!,
-                            """Field error in object 'jsonRpcRequest' on field 'method': 
-|rejected value \[ {3}]; codes \[NotBlank.*""".trimMargin()
-                        )
-                    }
+        response shouldBe JsonRpcResponse(
+            "123",
+            error = JsonRpcError(
+                JsonRpcError.INVALID_REQUEST,
+                "Invalid request",
+                listOf(
+                    "jsonRpc must be exactly 2.0",
+                    "method must not be blank"
                 )
-            }
+            )
         )
     }
 
@@ -182,22 +151,73 @@ internal class JsonRpcValidationTests {
                 """.trimIndent()
         )!!
 
-        assertAll(
-            { response.id shouldBe "456" },
-            { response.result shouldBe null },
-            { response.error shouldNotBe null },
-            { response.error!!.code shouldBe JsonRpcError.INVALID_PARAMS },
-            { response.error!!.message shouldBe "Invalid method parameter(s)" },
-            {
-                val errorMessage = response.error!!.data as String
-                assertTrue(
-                    Regex(
-                        """.* value failed for JSON property name due to missing \(therefore NULL\) .*""",
-                        RegexOption.DOT_MATCHES_ALL
-                    ).matches(errorMessage),
-                    errorMessage
-                )
-            }
+        response shouldBe JsonRpcResponse(
+            id = "456",
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                "Invalid method parameter(s)",
+                "params.name must not be null"
+            )
+        )
+    }
+
+    @Test
+    fun `request with invalid params with missing required field in nested array fails`() {
+        val response = call(
+            """
+                    {
+                        "method": "testService.processArray",
+                        "params": {
+                            "values": [
+                                {
+                                    "name": "value1"
+                                },
+                                {
+                                    "hello": ""
+                                }
+                            ]
+                        },
+                        "id": "456",
+                        "jsonrpc": "2.0"
+                    }
+                """.trimIndent()
+        )!!
+
+        response shouldBe JsonRpcResponse(
+            id = "456",
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                "Invalid method parameter(s)",
+                "params.values[1].name must not be null"
+            )
+        )
+    }
+
+    @Test
+    fun `request with invalid params fails`() {
+        val response = call(
+            """
+                    {
+                        "method": "testService.process",
+                        "params": [
+                            {
+                                "name": "value1"
+                            }
+                        ],
+                        "id": "456",
+                        "jsonrpc": "2.0"
+                    }
+                """.trimIndent()
+        )!!
+
+        response shouldBe JsonRpcResponse(
+            id = "456",
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                "Invalid method parameter(s)",
+                "Cannot deserialize instance of `com.github.krupt.test.dto.TestRequest` out of START_ARRAY token" +
+                    "\n at [Source: UNKNOWN; line: -1, column: -1]"
+            )
         )
     }
 
@@ -216,23 +236,45 @@ internal class JsonRpcValidationTests {
                 """.trimIndent()
         )!!
 
-        assertAll(
-            { response.id shouldBe 567 },
-            { response.result shouldBe null },
-            { response.error shouldNotBe null },
-            { response.error!!.code shouldBe JsonRpcError.INVALID_PARAMS },
-            { response.error!!.message shouldBe "Request didn't pass validation" },
-            {
-                val errorMessages = response.error!!.data as List<String>
-                errorMessages.size shouldBe 1
-                val errorMessage = errorMessages[0]
-                assertTrue(
-                    errorMessage.startsWith(
-                        "Field error in object 'TestRequest' on field 'name': rejected value [   ]; codes [NotBlank"
-                    ),
-                    errorMessage
-                )
-            }
+        response shouldBe JsonRpcResponse(
+            567,
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                "Request didn't pass validation",
+                listOf("params.name must not be blank")
+            )
+        )
+    }
+
+    @Test
+    fun `request with invalid params with invalid array field fails`() {
+        val response = call(
+            """
+                    {
+                        "method": "testService.processArray",
+                        "params": {
+                            "values": [
+                                {
+                                    "name": "21"
+                                },
+                                {
+                                    "name": "    "
+                                }
+                            ]
+                        },
+                        "id": 567,
+                        "jsonrpc": "2.0"
+                    }
+                """.trimIndent()
+        )!!
+
+        response shouldBe JsonRpcResponse(
+            567,
+            error = JsonRpcError(
+                JsonRpcError.INVALID_PARAMS,
+                "Request didn't pass validation",
+                listOf("params.values[1].name must not be blank")
+            )
         )
     }
 

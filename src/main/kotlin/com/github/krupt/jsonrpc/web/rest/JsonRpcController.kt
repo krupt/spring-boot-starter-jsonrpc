@@ -1,6 +1,7 @@
 package com.github.krupt.jsonrpc.web.rest
 
 import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.github.krupt.jsonrpc.JsonRpcMethod
@@ -74,10 +75,21 @@ class JsonRpcController(
             try {
                 objectMapper.convertValue(it, method.inputType)
             } catch (e: IllegalArgumentException) {
-                return buildResponse(
-                    request.id,
-                    JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, e.toString())
-                )
+                return if (e.cause is MissingKotlinParameterException) {
+                    buildResponse(
+                        request.id,
+                        JsonRpcError(
+                            JsonRpcError.INVALID_PARAMS,
+                            JsonRpcError.INVALID_PARAMS_MESSAGE,
+                            convertKotlinNullParameterException(e.cause as MissingKotlinParameterException, "params")
+                        )
+                    )
+                } else {
+                    buildResponse(
+                        request.id,
+                        JsonRpcError(JsonRpcError.INVALID_PARAMS, JsonRpcError.INVALID_PARAMS_MESSAGE, e.message)
+                    )
+                }
             }
         }
 
@@ -95,8 +107,8 @@ class JsonRpcController(
                     JsonRpcError.INVALID_PARAMS,
                     "Request didn't pass validation",
                     bindException.bindingResult.fieldErrors
-                        .map { fieldError ->
-                            fieldError.toString()
+                        .map {
+                            "params.${it.field} ${it.defaultMessage}"
                         }
                 )
             )
@@ -149,7 +161,7 @@ class JsonRpcController(
                 error = JsonRpcError(
                     JsonRpcError.INVALID_REQUEST,
                     JsonRpcError.INVALID_REQUEST_MESSAGE,
-                    cause.message
+                    convertKotlinNullParameterException(cause)
                 )
             )
             else -> JsonRpcResponse(
@@ -169,10 +181,37 @@ class JsonRpcController(
                 JsonRpcError.INVALID_REQUEST_MESSAGE,
                 exception.bindingResult.fieldErrors
                     .map {
-                        it.toString()
+                        "${it.field} ${it.defaultMessage}"
                     }
             )
         )
+
+
+    private fun convertKotlinNullParameterException(exception: MissingKotlinParameterException, prefix: String = ""): String =
+        printPrefixIfNeeded(prefix) + exception.path
+            .mapIndexed { i, it ->
+                    printDotIfNeeded(i, it) +
+                    (it.fieldName ?: "") +
+                    printArrayPositionIfNeeded(it)
+            }.joinToString(separator = "") + " must not be null"
+
+    private fun printPrefixIfNeeded(prefix: String): String =
+        if (prefix.isNotBlank()) {
+            "$prefix."
+        } else {
+            prefix
+        }
+
+    private fun printDotIfNeeded(index: Int, reference: JsonMappingException.Reference): String =
+        // Don't add dot for first field or any arrays
+        if (index == 0 || reference.index >= 0) {
+            ""
+        } else {
+            "."
+        }
+
+    private fun printArrayPositionIfNeeded(reference: JsonMappingException.Reference): String =
+        reference.index.takeIf { it >= 0 }?.let { "[$it]" } ?: ""
 }
 
 interface MethodInvocation {

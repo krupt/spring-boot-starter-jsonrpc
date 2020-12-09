@@ -1,6 +1,7 @@
 package com.github.krupt.test.service
 
 import com.github.krupt.jsonrpc.annotation.JsonRpcService
+import com.github.krupt.test.dto.ArrayTestRequest
 import com.github.krupt.test.dto.TestPageableRequest
 import com.github.krupt.test.dto.TestRequest
 import com.github.krupt.test.dto.TestResponse
@@ -26,6 +27,9 @@ class TestService(
         testRunnable.run()
 
         return TestResponse(1567)
+    }
+
+    fun processArray(request: ArrayTestRequest) {
     }
 
     fun processAsync(request: TestRequest) {
